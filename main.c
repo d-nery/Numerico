@@ -11,9 +11,11 @@
 #include <stdio.h>
 
 #include "matrix.h"
+#include "error.h"
 
 int main(int argc, char* argv[]) {
-
+	matrix_t* A = matrix_create_from_file("data/4_Completa_D_Matriz.txt");
+	print_matrix(A);
 
 	return 0;
 }

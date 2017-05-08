@@ -1,0 +1,16 @@
+
+ 76B_Completa_D                       Núm.cham.      Temp.tot.(s)    Temp.médio(s)
+
+ SL_AtualizaGrupos                          201           0.000           0.000
+ SL_Back                                      1           0.000           0.000
+ SL_InsereLinha                             277           0.000           0.000
+ SL_LocalizaGrupo                           201           0.000           0.000
+ SL_MontaGrupos                               1           0.000           0.000
+ SL_RemoveLinha                             201           0.000           0.000
+ SL_Triang                                    1           0.000           0.000
+
+ 76B_Completa_D                       Núm.cham.      Temp.tot.(s)    Temp.médio(s)
+
+ SL_Triang                                    1           0.000           0.000
+
+ Codigo de erro: 0

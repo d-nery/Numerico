@@ -11,11 +11,24 @@
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 
+#define MAT_NULL (matrix_t *)NULL
+#define VEC_NULL (vector_t *)NULL
+
 typedef struct {
-	float** data;
+	double** data;
 	int l, c;
 } matrix_t;
 
+typedef struct {
+	double* data;
+	int size;
+} vector_t;
+
 matrix_t* matrix_create(int m, int n);
+matrix_t* matrix_create_from_file(char* name);
+vector_t* vector_create(int size);
+vector_t* vector_create_from_file(char* name);
+
+void print_matrix(matrix_t* matrix);
 
 #endif
