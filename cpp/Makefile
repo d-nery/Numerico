@@ -1,7 +1,7 @@
-COMPILE  = gcc -Wall -Wextra -std=c99
+COMPILE  = g++ -Wall -Wextra -std=c++1z
 OPTIMIZE = -Ofast -fopenmp
 LD_FLAGS = -lm
-OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
+OBJECTS  = $(patsubst %.cpp,%.o,$(wildcard *.cpp))
 
 all: map
 

@@ -13,9 +13,13 @@
 #include "matrix.h"
 #include "error.h"
 
+#define len(array) ((&array)[1] - array)
+
 int main(int argc, char* argv[]) {
-	matrix_t* A = matrix_create_from_file("data/4_Completa_D_Matriz.txt");
-	print_matrix(A);
+	matrix_t* A = matrix_create_from_file("data/6259_Completa_D_Matriz.txt");
+	printf("\n");
+
+	matrix_t* B = matrix_plus(A, A);
 
 	return 0;
 }
