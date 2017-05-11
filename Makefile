@@ -1,4 +1,4 @@
-COMPILE  = gcc -Wall -Wextra -O3 -std=c99
+COMPILE  = gcc -Wall -Wextra -std=c99 -fast
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 

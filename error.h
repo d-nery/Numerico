@@ -15,7 +15,10 @@ typedef enum {
 	ERR_NEGATIVE = 1,
 	ERR_MEMORY,
 	ERR_OPEN_FILE,
-	ERR_READ_FILE
+	ERR_READ_FILE,
+	ERR_SIZE,
+	ERR_OOB,
+	ERR_NULL
 } err_t;
 
 #define error(err, func) __err(err, func, __FILE__, __LINE__)

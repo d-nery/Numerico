@@ -15,7 +15,9 @@
 
 int main(int argc, char* argv[]) {
 	matrix_t* A = matrix_create_from_file("data/4_Completa_D_Matriz.txt");
-	print_matrix(A);
+	printf("\n");
+
+	print_matrix(matrix_create_identity(4));
 
 	return 0;
 }

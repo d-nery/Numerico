@@ -8,13 +8,16 @@ char* err_list[] = {
 	"argumento negativo",
 	"nao foi possivel alocar memoria",
 	"erro na abertura do arquivo",
-	"erro na leitura do arquivo"
+	"erro na leitura do arquivo",
+	"tamanhos nao condizentes de matriz/vetor",
+	"out of bounds",
+	"argumentos nulos"
 };
 
 struct {
 	char** list;
 	int len;
-} errors = { err_list, 5 };
+} errors = { err_list, 7 };
 
 void __err(err_t err, char* func, char* file, int line) {
 	if (err >= errors.len || err < 0)
