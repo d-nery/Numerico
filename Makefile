@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 COMPILE  = gcc -Wall -Wextra -std=c99
 OPTIMIZE = -Ofast -fopenmp
+=======
+COMPILE  = gcc -Wall -Wextra -std=c99 -fast
+>>>>>>> 24bf126834d9e7bbd6e1638bbda2a65dd4b2ea5b
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 
