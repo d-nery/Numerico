@@ -11,15 +11,18 @@
 #include <stdio.h>
 
 #include "matrix.h"
+#include "vector.h"
 #include "error.h"
 
-#define len(array) ((&array)[1] - array)
 
 int main(int argc, char* argv[]) {
-	matrix_t* A = matrix_create_from_file("data/6259_Completa_D_Matriz.txt");
-	printf("\n");
+	matrix_t* A = matrix_create_from_file("data/4_Completa_D_Matriz.txt");
+	vector_t* B = vector_create_from_file("data/4_Completa_D_VetorB.txt", A->l);
 
-	matrix_t* B = matrix_plus(A, A);
+	print_matrix(A);
+	printf("\n");
+	print_vector(B);
+	printf("\n");
 
 	return 0;
 }

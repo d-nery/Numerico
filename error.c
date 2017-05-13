@@ -3,6 +3,8 @@
 
 #include "error.h"
 
+#define len(array) ((&array)[1] - array)
+
 char* err_list[] = {
 	"erro desconhecido",
 	"argumento negativo",
@@ -14,15 +16,10 @@ char* err_list[] = {
 	"argumentos nulos"
 };
 
-struct {
-	char** list;
-	int len;
-} errors = { err_list, 7 };
-
 void __err(err_t err, char* func, char* file, int line) {
-	if (err >= errors.len || err < 0)
+	if (err >= len(err_list))
 		err = 0;
 
-	fprintf(stderr, "[ERRO] %s:%d: Na funcao %s(): %s\n", file, line, func, errors.list[err]);
+	fprintf(stderr, "[ERRO] %s:%d: Na funcao %s(): %s\n", file, line, func, err_list[err]);
 	exit(0);
 }
