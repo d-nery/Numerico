@@ -101,7 +101,7 @@ void print_matrix(matrix_t* matrix) {
 		for (int j = 0; j < matrix->c; j++) {
 			if (matrix_get(matrix, i, j) >= 0)
 				printf(" ");
-			printf("%.12e ", matrix_get(matrix, i, j));
+			printf("%.6e ", matrix_get(matrix, i, j));
 		}
 		printf("\n");
 	}

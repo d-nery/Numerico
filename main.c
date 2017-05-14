@@ -30,22 +30,10 @@ int main(int argc, char* argv[]) {
 	sprintf(file_m, "data/%s_Completa_D_Matriz.txt", argv[1]);
 	sprintf(file_v, "data/%s_Completa_D_VetorB.txt", argv[1]);
 
-	// matrix_t* A = matrix_create_from_file(file_m);
-	// vector_t* b = vector_create_from_file(file_v, A->l);
+	matrix_t* A = matrix_create_from_file(file_m);
+	vector_t* b = vector_create_from_file(file_v, A->l);
 	// matrix_t* A = matrix_create_from_file("teste.txt");
 	// vector_t* b = vector_create_from_file("vetor.txt", A->l);
-
-	int n = atoi(argv[1]);
-	int m = atoi(argv[2]);
-	matrix_t* A = matrix_create(n, m);
-
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < m; j++)
-			A->data[i][j] = abs(i - j) <= 4 ? 1.0/(i + j -1) : 0;
-
-	vector_t* b = vector_create(n);
-	for (int i = 0; i < n; i++)
-		b->data[i] = 1;
 
 	printf("Starting computing...\n");
 	clock_t beg = clock();
@@ -75,7 +63,6 @@ int main(int argc, char* argv[]) {
 
 			for (int i = c; i < A->c; i++)
 				matrix_set(A, i, k, vector_get(hb, i - c));
-
 		}
 		// Vetor b
 		for (int j = 0; j < B->size; j++)
@@ -93,9 +80,9 @@ int main(int argc, char* argv[]) {
 		vector_free(temp_mult);
 	}
 
-	vector_t* x = vector_create(b->size);
+	vector_t* x = vector_create(A->c);
 
-	for (int i = it_max; i >= 0; i--) {
+	for (int i = it_max - 1; i >= 0; i--) {
 		double val = 0;
 		for (int j = i+1; j < A->c; j++) {
 			val += vector_get(x, j) * matrix_get(A, i, j);

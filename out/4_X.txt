@@ -1,4 +1,4 @@
 NaN
 NaN
-NaN
-NaN
+ Inf
+ 0.000000000000e+00
