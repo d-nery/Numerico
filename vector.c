@@ -10,22 +10,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "vector.h"
 #include "error.h"
 
-void print_vector(vector_t* vector) {
+void print_vector(const vector_t* vector) {
 	if (vector == VEC_NULL)
 		error(ERR_NULL, "print_vector");
 
 	for (int i = 0; i < vector->size; i++) {
-		if (vector->data[i] >= 0)
+		if (vector_get(vector, i) >= 0)
 			printf(" ");
-		printf("%.12e\n", vector->data[i]);
+		printf("%.12e\n", vector_get(vector, i));
 	}
 }
 
-vector_t* vector_create(int size) {
+vector_t* vector_create(const int size) {
 	vector_t* vector;
 
 	if (size <= 0)
@@ -44,7 +45,7 @@ vector_t* vector_create(int size) {
 	return vector;
 }
 
-vector_t* vector_create_from_file(char* name, int lines) {
+vector_t* vector_create_from_file(const char* name, const int lines) {
 	vector_t* vector;
 	FILE* fp = fopen(name, "r");
 
@@ -65,7 +66,7 @@ vector_t* vector_create_from_file(char* name, int lines) {
 	return vector;
 }
 
-void vector_set(vector_t* vector, int i, float v) {
+void vector_set(vector_t* vector, const int i, const double v) {
 	if (vector == VEC_NULL)
 		error(ERR_NULL, "vector_set");
 
@@ -75,7 +76,7 @@ void vector_set(vector_t* vector, int i, float v) {
 	vector->data[i] = v;
 }
 
-float vector_get(vector_t* vector, int i) {
+double vector_get(const vector_t* vector, const int i) {
 	if (vector == VEC_NULL)
 		error(ERR_NULL, "vector_get");
 
@@ -85,19 +86,106 @@ float vector_get(vector_t* vector, int i) {
 	return vector->data[i];
 }
 
+double vector_norm(const vector_t* vector) {
+	return sqrt(vector_multiply(vector, vector));
+}
 
-vector_t* vector_add(vector_t* u, vector_t* v) {
+double vector_multiply(const vector_t* u, const vector_t* v) {
+	if (u == VEC_NULL || v == VEC_NULL)
+		error(ERR_NULL, "vector_multiply");
+
+	if (u->size != v->size)
+		error(ERR_SIZE, "vector_multiply");
+
+	double result = 0;
+
+	for (int i = 0; i < u->size; i++)
+		result += vector_get(u, i) * vector_get(v, i);
+
+	return result;
+}
+
+vector_t* vector_add(const vector_t* u, const vector_t* v, vector_t* r) {
 	if (u == VEC_NULL || v == VEC_NULL)
 		error(ERR_NULL, "vector_set");
 
 	if (u->size != v->size)
 		error(ERR_SIZE, "vector_add");
 
-	vector_t* result;
-	result = vector_create(u->size);
+	if (r == VEC_NULL)
+		r = vector_create(u->size);
+
+	if (r->size != u->size) {
+		vector_free(r);
+		r = vector_create(u->size);
+	}
 
 	for (int i = 0; i < u->size; i++)
-		vector_set(result, i, vector_get(u, i) + vector_get(v, i));
+		vector_set(r, i, vector_get(u, i) + vector_get(v, i));
 
-	return result;
+	return r;
+}
+
+vector_t* vector_subtract(const vector_t* u, const vector_t* v, vector_t* r) {
+	if (u == VEC_NULL || v == VEC_NULL)
+		error(ERR_NULL, "vector_set");
+
+	if (u->size != v->size)
+		error(ERR_SIZE, "vector_add");
+
+	if (r == VEC_NULL)
+		r = vector_create(u->size);
+
+	if (r->size != u->size) {
+		vector_free(r);
+		r = vector_create(u->size);
+	}
+
+	for (int i = 0; i < u->size; i++)
+		vector_set(r, i, vector_get(u, i) - vector_get(v, i));
+
+	return r;
+}
+
+vector_t* vector_mult_scalar(const double n, const vector_t* u, vector_t* r) {
+	if (u == VEC_NULL)
+		error(ERR_NULL, "vector_mult_scalar");
+
+	if (r == VEC_NULL)
+		r = vector_create(u->size);
+
+	if (r->size != u->size) {
+		vector_free(r);
+		r = vector_create(u->size);
+	}
+
+	for (int i = 0; i < u->size; i++)
+		vector_set(r, i, vector_get(u, i)*n);
+
+	return r;
+}
+
+void vector_free(vector_t* vector) {
+	if (vector == VEC_NULL)
+		error(ERR_NULL, "vector_free");
+
+	if (vector->data == (double*)NULL)
+		error(ERR_NULL, "vector_free");
+
+	vector->size = 0;
+	free(vector->data);
+	free(vector);
+}
+
+void output_vector(const vector_t* vector, const char* filename) {
+	if (vector == VEC_NULL)
+		error(ERR_NULL, "print_vector");
+
+	FILE* f = fopen(filename, "w");
+
+	for (int i = 0; i < vector->size; i++) {
+		if (vector_get(vector, i) >= 0)
+			fprintf(f, " ");
+		fprintf(f, 	"%.12e\n", vector_get(vector, i));
+	}
 }

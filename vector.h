@@ -13,20 +13,28 @@
 
 #define VEC_NULL (vector_t *)NULL
 
+#define sgn(v) ((v) < 0 ? -1 : 1)
+
 typedef struct {
 	double* data;
 	int size;
 } vector_t;
 
-vector_t* vector_create(int size);
-vector_t* vector_create_from_file(char* name, int lines);
-void print_vector(vector_t* vector);
+vector_t* vector_create(const int size);
+vector_t* vector_create_from_file(const char* name, const int lines);
+void print_vector(const vector_t* vector);
+void output_vector(const vector_t* vector, const char* filename);
 
-void vector_set(vector_t* vector, int i, float v);
-float vector_get(vector_t* vector, int i);
+void vector_set(vector_t* vector, const int i, const double v);
+double vector_get(const vector_t* vector, const int i);
 
-vector_t* vector_add(vector_t* A, vector_t* B);
-vector_t* vector_subtract(vector_t* A, vector_t* B);
-vector_t* vector_mult_scalar(float n, vector_t* A);
+double vector_norm(const vector_t* vector);
+double vector_multiply(const vector_t* u, const vector_t* v);
+
+vector_t* vector_add(const vector_t* u, const vector_t* v, vector_t* r);
+vector_t* vector_subtract(const vector_t* u, const vector_t* v, vector_t* r);
+vector_t* vector_mult_scalar(const double n, const vector_t* u, vector_t* r);
+
+void vector_free(vector_t* vector);
 
 #endif

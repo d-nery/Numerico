@@ -73,9 +73,7 @@ matrix_t* matrix_create_from_file(char* name) {
 	return matrix;
 }
 
-
-
-void matrix_set(matrix_t* matrix, int i, int j, float v) {
+void matrix_set(matrix_t* matrix, int i, int j, double v) {
 	if (matrix == MAT_NULL)
 		error(ERR_NULL, "matrix_set");
 
@@ -85,7 +83,7 @@ void matrix_set(matrix_t* matrix, int i, int j, float v) {
 	matrix->data[i][j] = v;
 }
 
-float matrix_get(matrix_t* matrix, int i, int j) {
+double matrix_get(matrix_t* matrix, int i, int j) {
 	if (matrix == MAT_NULL)
 		error(ERR_NULL, "matrix_get");
 
@@ -130,7 +128,7 @@ matrix_t* matrix_subtract(matrix_t* A, matrix_t* B) {
 	return matrix_add(A, matrix_mult_scalar(-1.0, B));
 }
 
-matrix_t* matrix_mult_scalar(float n, matrix_t* A) {
+matrix_t* matrix_mult_scalar(double n, matrix_t* A) {
 	if (A == MAT_NULL)
 		error(ERR_NULL, "matrix_set");
 
