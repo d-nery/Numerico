@@ -14,6 +14,6 @@ map: $(OBJECTS)
 	@echo
 
 clean:
-	rm -rf $(OBJECTS) map
+	rm -rf $(OBJECTS) map.exe
 
 PHONY: all clean

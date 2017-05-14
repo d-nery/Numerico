@@ -8,9 +8,13 @@
  *         Mateus Almeida Barbosa        - 9349072
  */
 
+#ifndef _QR_H_
+#define _QR_H_
 
 #include "matrix.h"
 #include "vector.h"
 
-void r_solve(matrix_t* R, vector_t* x, vector_t* bt);
-void qr_factorize(matrix_t* A, vector_t* b);
+vector_t* system_solve(matrix_t* R, vector_t* x, vector_t* bt);
+void householder(matrix_t* A, vector_t* b);
+
+#endif

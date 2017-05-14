@@ -16,6 +16,7 @@
 #include "matrix.h"
 #include "vector.h"
 #include "error.h"
+#include "qr.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -30,65 +31,21 @@ int main(int argc, char* argv[]) {
 	sprintf(file_m, "data/%s_Completa_D_Matriz.txt", argv[1]);
 	sprintf(file_v, "data/%s_Completa_D_VetorB.txt", argv[1]);
 
-	matrix_t* A = matrix_create_from_file(file_m);
-	vector_t* b = vector_create_from_file(file_v, A->l);
-	// matrix_t* A = matrix_create_from_file("teste.txt");
-	// vector_t* b = vector_create_from_file("vetor.txt", A->l);
+	// matrix_t* A = matrix_create_from_file(file_m);
+	// vector_t* b = vector_create_from_file(file_v, A->l);
+	matrix_t* A = matrix_create_from_file("data/testeM.txt");
+	vector_t* b = vector_create_from_file("data/testeV.txt", A->l);
 
 	printf("Starting computing...\n");
 	clock_t beg = clock();
-	int it_max = min(A->l-1, A->c);
-	for (int c = 0; c < it_max; c++) {
-		vector_t* B = vector_create(A->l - c);
-		for (int j = 0; j < B->size; j++)
-			vector_set(B, j, matrix_get(A, j + c, c));
+	householder(A, b);
 
-		vector_t* e  = vector_create(B->size);
-		vector_set(e, 0, 1.0);
+	print_matrix(A);
+	printf("\n");
+	print_vector(b);
 
+	vector_t* x = system_solve(A, x, b);
 
-		vector_t* hb = vector_create(B->size);
-		vector_t* w  = NULL;
-		vector_t* temp_mult = NULL;
-		temp_mult = vector_mult_scalar(sgn(vector_get(B, 0)) * vector_norm(B), e, temp_mult);
-		w = vector_add(B, temp_mult, w);
-
-		for (int k = c; k < A->c; k++) {
-			for (int j = 0; j < B->size; j++)
-				vector_set(B, j, matrix_get(A, j + c, k));
-
-			// H*b = B - 2 * (w * B)/(w * w) * w
-			temp_mult = vector_mult_scalar(2 * vector_multiply(w, B)/vector_multiply(w, w), w, temp_mult);
-			hb = vector_subtract(B, temp_mult, hb);
-
-			for (int i = c; i < A->c; i++)
-				matrix_set(A, i, k, vector_get(hb, i - c));
-		}
-		// Vetor b
-		for (int j = 0; j < B->size; j++)
-			vector_set(B, j, vector_get(b, j + c));
-
-		temp_mult = vector_mult_scalar(2 * vector_multiply(w, B)/vector_multiply(w, w), w, temp_mult);
-		hb = vector_subtract(B, temp_mult, hb);
-		for (int i = c; i < A->c; i++)
-			vector_set(b, i, vector_get(hb, i - c));
-
-		vector_free(B);
-		vector_free(w);
-		vector_free(e);
-		vector_free(hb);
-		vector_free(temp_mult);
-	}
-
-	vector_t* x = vector_create(A->c);
-
-	for (int i = it_max - 1; i >= 0; i--) {
-		double val = 0;
-		for (int j = i+1; j < A->c; j++) {
-			val += vector_get(x, j) * matrix_get(A, i, j);
-		}
-		vector_set(x, i, (vector_get(b, i) - val)/matrix_get(A, i, i));
-	}
 	printf("Finished! Time: %.8lfs\n", (double)(clock() - beg)/CLOCKS_PER_SEC);
 	sprintf(file_v, "out/%s_X.txt", argv[1]);
 	output_vector(x, file_v);
