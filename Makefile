@@ -1,5 +1,5 @@
-COMPILE  = gcc -Wall -Wextra -std=c99 -fshort-enums -g
-OPTIMIZE = -Og -fopenmp
+COMPILE  = gcc -Wall -Wextra -std=c99 -fshort-enums
+OPTIMIZE = -Ofast -fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 

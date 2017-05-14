@@ -29,20 +29,22 @@ int main(int argc, char* argv[]) {
 	sprintf(file_m, "data/%s_Completa_D_Matriz.txt", argv[1]);
 	sprintf(file_v, "data/%s_Completa_D_VetorB.txt", argv[1]);
 
-	// matrix_t* A = matrix_create_from_file(file_m);
-	// vector_t* b = vector_create_from_file(file_v, A->l);
+	matrix_t* A = matrix_create_from_file(file_m);
+	vector_t* b = vector_create_from_file(file_v, A->l);
+	// matrix_t* A = matrix_create_from_file("teste.txt");
+	// vector_t* b = vector_create_from_file("vetor.txt", A->l);
 
-	int n = atoi(argv[1]);
-	int m = atoi(argv[2]);
-	matrix_t* A = matrix_create(n, m);
+	// int n = atoi(argv[1]);
+	// int m = atoi(argv[2]);
+	// matrix_t* A = matrix_create(n, m);
 
-	for (int i = 0; i < n; i++)
-		for (int j = 0; j < m; j++)
-			A->data[i][j] = abs(i - j) <= 4 ? 1.0/(i + j -1) : 0;
+	// for (int i = 0; i < n; i++)
+	// 	for (int j = 0; j < m; j++)
+	// 		A->data[i][j] = abs(i - j) <= 4 ? 1.0/(i + j -1) : 0;
 
-	vector_t* b = vector_create(n);
-	for (int i = 0; i < n; i++)
-		b->data[i] = 1;
+	// vector_t* b = vector_create(n);
+	// for (int i = 0; i < n; i++)
+	// 	b->data[i] = 1;
 
 	printf("Starting computing...\n");
 	clock_t beg = clock();
@@ -58,7 +60,7 @@ int main(int argc, char* argv[]) {
 		vector_t* hb = vector_create(B->size);
 		vector_t* w  = NULL;
 		vector_t* temp_mult = NULL;
-		temp_mult = vector_mult_scalar(vector_norm(B), e, temp_mult);
+		temp_mult = vector_mult_scalar(sgn(vector_get(B, 0)) * vector_norm(B), e, temp_mult);
 		w = vector_add(B, temp_mult, w);
 
 		for (int k = 0; k < B->size; k++) {
@@ -101,6 +103,13 @@ int main(int argc, char* argv[]) {
 	printf("Finished! Time: %.8lfs\n", (double)(clock() - beg)/CLOCKS_PER_SEC);
 	sprintf(file_v, "out/%s_X.txt", argv[1]);
 	output_vector(x, file_v);
+
+	// print_matrix(A);
+	// printf("\n");
+	// print_vector(b);
+	// printf("\n");
+	// print_vector(x);
+	// printf("\n");
 
 	return 0;
 }

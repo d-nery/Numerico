@@ -18,7 +18,7 @@ char* err_list[] = {
 
 void __err(err_t err, char* func, char* file, int line) {
 	if (err >= len(err_list))
-		err = 0;
+		err = ERR_UNKNOWN;
 
 	fprintf(stderr, "[ERRO] %s:%d: Na funcao %s(): %s\n", file, line, func, err_list[err]);
 	exit(0);

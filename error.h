@@ -12,7 +12,8 @@
 #define _ERROR_H_
 
 typedef enum {
-	ERR_NEGATIVE = 1U,
+	ERR_UNKNOWN = 0,
+	ERR_NEGATIVE,
 	ERR_MEMORY,
 	ERR_OPEN_FILE,
 	ERR_READ_FILE,
