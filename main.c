@@ -17,6 +17,7 @@
 #include "vector.h"
 #include "error.h"
 
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
@@ -29,26 +30,27 @@ int main(int argc, char* argv[]) {
 	sprintf(file_m, "data/%s_Completa_D_Matriz.txt", argv[1]);
 	sprintf(file_v, "data/%s_Completa_D_VetorB.txt", argv[1]);
 
-	matrix_t* A = matrix_create_from_file(file_m);
-	vector_t* b = vector_create_from_file(file_v, A->l);
+	// matrix_t* A = matrix_create_from_file(file_m);
+	// vector_t* b = vector_create_from_file(file_v, A->l);
 	// matrix_t* A = matrix_create_from_file("teste.txt");
 	// vector_t* b = vector_create_from_file("vetor.txt", A->l);
 
-	// int n = atoi(argv[1]);
-	// int m = atoi(argv[2]);
-	// matrix_t* A = matrix_create(n, m);
+	int n = atoi(argv[1]);
+	int m = atoi(argv[2]);
+	matrix_t* A = matrix_create(n, m);
 
-	// for (int i = 0; i < n; i++)
-	// 	for (int j = 0; j < m; j++)
-	// 		A->data[i][j] = abs(i - j) <= 4 ? 1.0/(i + j -1) : 0;
+	for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			A->data[i][j] = abs(i - j) <= 4 ? 1.0/(i + j -1) : 0;
 
-	// vector_t* b = vector_create(n);
-	// for (int i = 0; i < n; i++)
-	// 	b->data[i] = 1;
+	vector_t* b = vector_create(n);
+	for (int i = 0; i < n; i++)
+		b->data[i] = 1;
 
 	printf("Starting computing...\n");
 	clock_t beg = clock();
-	for (int c = 0; c < A->c-1; c++) {
+	int it_max = min(A->l-1, A->c);
+	for (int c = 0; c < it_max; c++) {
 		vector_t* B = vector_create(A->l - c);
 		for (int j = 0; j < B->size; j++)
 			vector_set(B, j, matrix_get(A, j + c, c));
@@ -63,16 +65,16 @@ int main(int argc, char* argv[]) {
 		temp_mult = vector_mult_scalar(sgn(vector_get(B, 0)) * vector_norm(B), e, temp_mult);
 		w = vector_add(B, temp_mult, w);
 
-		for (int k = 0; k < B->size; k++) {
+		for (int k = c; k < A->c; k++) {
 			for (int j = 0; j < B->size; j++)
-				vector_set(B, j, matrix_get(A, j + c, k + c));
+				vector_set(B, j, matrix_get(A, j + c, k));
 
 			// H*b = B - 2 * (w * B)/(w * w) * w
 			temp_mult = vector_mult_scalar(2 * vector_multiply(w, B)/vector_multiply(w, w), w, temp_mult);
 			hb = vector_subtract(B, temp_mult, hb);
 
 			for (int i = c; i < A->c; i++)
-				matrix_set(A, i, k + c, vector_get(hb, i - c));
+				matrix_set(A, i, k, vector_get(hb, i - c));
 
 		}
 		// Vetor b
@@ -93,7 +95,7 @@ int main(int argc, char* argv[]) {
 
 	vector_t* x = vector_create(b->size);
 
-	for (int i = A->l-1; i >= 0; i--) {
+	for (int i = it_max; i >= 0; i--) {
 		double val = 0;
 		for (int j = i+1; j < A->c; j++) {
 			val += vector_get(x, j) * matrix_get(A, i, j);
