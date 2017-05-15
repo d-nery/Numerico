@@ -18,12 +18,19 @@
 
 static int it_max;
 
+/**
+ * system_solve()
+ * Resolve um sistema linear do tipo Rx = b, onde R é uma matriz
+ * triangular inferior
+ *
+ * Retorna o vetor x
+ */
 vector_t* system_solve(matrix_t* R, vector_t* x, vector_t* bt) {
 	// if (x != VEC_NULL)
 	// 	vector_free(x);
 	x = vector_create(R->c);
 
-	for (int i = it_max - 1; i >= 0; i--) {
+	for (int i = it_max; i >= 0; i--) {
 		double val = 0;
 		for (int j = i+1; j < R->c; j++) {
 			val += vector_get(x, j) * matrix_get(R, i, j);
@@ -52,7 +59,7 @@ void householder(matrix_t* A, vector_t* b) {
 		w = vector_add(B, temp_mult, w);
 
 		for (int k = c; k < A->c; k++) {
-			printf("--- Coluna %d\n", k);
+			// printf("--- Coluna %d\n", k);
 			for (int j = 0; j < B->size; j++)
 				vector_set(B, j, matrix_get(A, j + c, k));
 

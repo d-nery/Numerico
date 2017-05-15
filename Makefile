@@ -1,4 +1,4 @@
-COMPILE  = gcc -Wall -Wextra -std=c99 -fshort-enums -g
+COMPILE  = C:\MinGW\bin\gcc.exe -Wall -Wextra -std=c99 -fshort-enums -g
 OPTIMIZE = # -O3 #-fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))

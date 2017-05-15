@@ -21,5 +21,5 @@ void __err(err_t err, char* func, char* file, int line) {
 		err = ERR_UNKNOWN;
 
 	fprintf(stderr, "[ERRO] %s:%d: Na funcao %s(): %s\n", file, line, func, err_list[err]);
-	exit(0);
+	exit(-1);
 }

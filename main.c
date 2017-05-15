@@ -31,10 +31,10 @@ int main(int argc, char* argv[]) {
 	sprintf(file_m, "data/%s_Completa_D_Matriz.txt", argv[1]);
 	sprintf(file_v, "data/%s_Completa_D_VetorB.txt", argv[1]);
 
-	// matrix_t* A = matrix_create_from_file(file_m);
-	// vector_t* b = vector_create_from_file(file_v, A->l);
-	matrix_t* A = matrix_create_from_file("data/testeM.txt");
-	vector_t* b = vector_create_from_file("data/testeV.txt", A->l);
+	matrix_t* A = matrix_create_from_file(file_m);
+	vector_t* b = vector_create_from_file(file_v, A->l);
+	// matrix_t* A = matrix_create_from_file("data/testeM.txt");
+	// vector_t* b = vector_create_from_file("data/testeV.txt", A->l);
 
 	printf("Starting computing...\n");
 	clock_t beg = clock();
