@@ -44,7 +44,6 @@ vector_t* system_solve(matrix_t* R, vector_t* x, vector_t* bt) {
 void householder(matrix_t* A, vector_t* b) {
 	it_max = min(A->l-1, A->c);
 	for (int c = 0; c < it_max; c++) {
-		printf("Iteracao %d\n", c+1);
 		vector_t* B = vector_create(A->l - c);
 		for (int j = 0; j < B->size; j++)
 			vector_set(B, j, matrix_get(A, j + c, c));
@@ -67,7 +66,7 @@ void householder(matrix_t* A, vector_t* b) {
 			temp_mult = vector_mult_scalar(2 * vector_multiply(w, B)/vector_multiply(w, w), w, temp_mult);
 			hb = vector_subtract(B, temp_mult, hb);
 
-			for (int i = c; i < A->c; i++)
+			for (int i = c; i < A->l; i++)
 				matrix_set(A, i, k, vector_get(hb, i - c));
 		}
 
@@ -77,7 +76,7 @@ void householder(matrix_t* A, vector_t* b) {
 
 		temp_mult = vector_mult_scalar(2 * vector_multiply(w, B)/vector_multiply(w, w), w, temp_mult);
 		hb = vector_subtract(B, temp_mult, hb);
-		for (int i = c; i < A->c; i++)
+		for (int i = c; i < A->l; i++)
 			vector_set(b, i, vector_get(hb, i - c));
 
 		vector_free(B);

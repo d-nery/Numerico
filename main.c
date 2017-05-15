@@ -33,29 +33,17 @@ int main(int argc, char* argv[]) {
 
 	matrix_t* A = matrix_create_from_file(file_m);
 	vector_t* b = vector_create_from_file(file_v, A->l);
-	// matrix_t* A = matrix_create_from_file("data/testeM.txt");
-	// vector_t* b = vector_create_from_file("data/testeV.txt", A->l);
 
 	printf("Starting computing...\n");
 	clock_t beg = clock();
 	householder(A, b);
 
-	print_matrix(A);
-	printf("\n");
-	print_vector(b);
-
-	vector_t* x = system_solve(A, x, b);
+	vector_t* x = NULL;
+	x = system_solve(A, x, b);
 
 	printf("Finished! Time: %.8lfs\n", (double)(clock() - beg)/CLOCKS_PER_SEC);
 	sprintf(file_v, "out/%s_X.txt", argv[1]);
 	output_vector(x, file_v);
-
-	// print_matrix(A);
-	// printf("\n");
-	// print_vector(b);
-	// printf("\n");
-	// print_vector(x);
-	// printf("\n");
 
 	return 0;
 }
