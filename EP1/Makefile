@@ -1,5 +1,5 @@
 COMPILE  = gcc -Wall -Wextra -std=c99 -fshort-enums
-OPTIMIZE = -Ofast -fopenmp
+OPTIMIZE = -O3 #-fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 
@@ -14,6 +14,6 @@ map: $(OBJECTS)
 	@echo
 
 clean:
-	rm -rf $(OBJECTS) map
+	rm -rf $(OBJECTS) map.exe
 
 PHONY: all clean
