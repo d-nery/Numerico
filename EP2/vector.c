@@ -66,6 +66,24 @@ vector_t* vector_create_from_file(const char* name, const int lines) {
 	return vector;
 }
 
+vector_t* vector_copy(const vector_t* v, vector_t* r) {
+	if (v == VEC_NULL)
+		error(ERR_NULL, "vector_abs");
+
+	if (r == VEC_NULL)
+		r = vector_create(v->size);
+
+	if (r->size != v->size) {
+		vector_free(r);
+		r = vector_create(v->size);
+	}
+
+	for (int i = 0; i < v->size; i++)
+		vector_set(r, i, vector_get(v, i));
+
+	return r;
+}
+
 void vector_set(vector_t* vector, const int i, const double v) {
 	if (vector == VEC_NULL)
 		error(ERR_NULL, "vector_set");
@@ -148,10 +166,10 @@ vector_t* vector_add_6(const vector_t* u, const vector_t* v, const vector_t* w, 
 
 vector_t* vector_subtract(const vector_t* u, const vector_t* v, vector_t* r) {
 	if (u == VEC_NULL || v == VEC_NULL)
-		error(ERR_NULL, "vector_set");
+		error(ERR_NULL, "vector_subtract");
 
 	if (u->size != v->size)
-		error(ERR_SIZE, "vector_add");
+		error(ERR_SIZE, "vector_subtract");
 
 	if (r == VEC_NULL)
 		r = vector_create(u->size);
@@ -232,7 +250,7 @@ vector_t* vector_mult_matrix(const matrix_t* A, const vector_t* v, vector_t* r) 
 	return r;
 }
 
-vector_t* vector_abs(vector_t* vector, vector_t* r) {
+vector_t* vector_abs(const vector_t* vector, vector_t* r) {
 	if (vector == VEC_NULL)
 		error(ERR_NULL, "vector_abs");
 

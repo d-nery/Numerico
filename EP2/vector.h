@@ -24,6 +24,8 @@ typedef struct {
 
 vector_t* vector_create(const int size);
 vector_t* vector_create_from_file(const char* name, const int lines);
+vector_t* vector_copy(const vector_t* v, vector_t* r);
+
 void print_vector(const vector_t* vector);
 void output_vector(const vector_t* vector, const char* filename);
 
@@ -43,7 +45,7 @@ vector_t* vector_subtract(const vector_t* u, const vector_t* v, vector_t* r);
 vector_t* vector_mult_scalar(const double n, const vector_t* u, vector_t* r);
 vector_t* vector_mult_matrix(const matrix_t* A, const vector_t* v, vector_t* r);
 
-vector_t* vector_abs(vector_t* vector, vector_t* r);
+vector_t* vector_abs(const vector_t* vector, vector_t* r);
 
 void vector_free(vector_t* vector);
 
