@@ -11,18 +11,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include "rkf.h"
 #include "vector.h"
+#include "error.h"
 #include "matrix.h"
 
 #define M_PI 3.141592653589793
-
-#define min(a, b)          ((a) < (b) ? (a) : (b))
-#define max(a, b)          ((a) > (b) ? (a) : (b))
-#define constrain(v, a, b) ((v) < (a) ? (a) : (v) > (b) ? (b) : (v))
-
-#define m_caso3 7
 
 vector_t* F1(double t, vector_t* X, vector_t* res) {
     if (res != VEC_NULL)
@@ -74,7 +70,7 @@ vector_t* F3(double t, vector_t* X, vector_t* res) {
         vector_free(res);
     res = vector_create(X->size);
 
-    matrix_t* A = matrix_create(m_caso3, m_caso3);
+    matrix_t* A = matrix_create(X->size, X->size);
     for (int i = 0; i < A->l; i++) {
         for (int j = 0; j < A->c; j++) {
             if (i == j)
@@ -91,129 +87,33 @@ vector_t* F3(double t, vector_t* X, vector_t* res) {
     return res;
 }
 
-void calculo(vector_t* X0, double t0, double tf, double eps, double h, vector_t* f(double, vector_t*, vector_t*), char* name) {
-    FILE* out = fopen(name, "w");
-
-    vector_t** k = (vector_t**)calloc((size_t)6, sizeof(vector_t*));
-    for (int i = 0; i < 6; i++)
-        k[i] = vector_create(X0->size);
-
-    double alpha;
-    vector_t* xi   = vector_create(X0->size);
-    vector_t* xi_b = vector_create(X0->size);
-
-    double t = t0;
-    vector_t* X = vector_copy(X0, X);
-    vector_t* f_temp = VEC_NULL;
-    vector_t* tal    = VEC_NULL;
-    double maxtal = 999;
-    int last = 0;
-
-    while (t <= tf && last < 2) {
-        maxtal = 999;
-        while (maxtal > eps) {
-            f_temp = f(t, X, f_temp);
-            k[0] = vector_mult_scalar(h, f_temp, k[0]);
-
-            f_temp = f(t + h_coeff[0]*h,
-                vector_add(
-                    X,
-                    vector_mult_scalar(k2_coeff[0], k[0], NULL), NULL), f_temp);
-            k[1] = vector_mult_scalar(h, f_temp, k[1]);
-
-            f_temp = f(t + h_coeff[1]*h,
-                vector_add_3(
-                    X,
-                    vector_mult_scalar(k3_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k3_coeff[1], k[1], NULL), NULL), f_temp);
-            k[2] = vector_mult_scalar(h, f_temp, k[2]);
-
-            f_temp = f(t + h_coeff[2]*h,
-                vector_add_4(
-                    X,
-                    vector_mult_scalar(k4_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k4_coeff[1], k[1], NULL),
-                    vector_mult_scalar(k4_coeff[2], k[2], NULL), NULL), f_temp);
-            k[3] = vector_mult_scalar(h, f_temp, k[3]);
-
-            f_temp = f(t + h_coeff[3]*h,
-                vector_add_5(
-                    X,
-                    vector_mult_scalar(k5_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k5_coeff[1], k[1], NULL),
-                    vector_mult_scalar(k5_coeff[2], k[2], NULL),
-                    vector_mult_scalar(k5_coeff[3], k[3], NULL), NULL), f_temp);
-            k[4] = vector_mult_scalar(h, f_temp, k[4]);
-
-            f_temp = f(t + h_coeff[4]*h,
-                vector_add_6(
-                    X,
-                    vector_mult_scalar(k6_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k6_coeff[1], k[1], NULL),
-                    vector_mult_scalar(k6_coeff[2], k[2], NULL),
-                    vector_mult_scalar(k6_coeff[3], k[3], NULL),
-                    vector_mult_scalar(k6_coeff[4], k[4], NULL), NULL), f_temp);
-            k[5] = vector_mult_scalar(h, f_temp, k[5]);
-
-            xi   = vector_add_5(
-                X,
-                vector_mult_scalar(xi_coeff[0], k[0], NULL),
-                vector_mult_scalar(xi_coeff[1], k[2], NULL),
-                vector_mult_scalar(xi_coeff[2], k[3], NULL),
-                vector_mult_scalar(xi_coeff[3], k[4], NULL), xi);
-
-            xi_b = vector_add_6(
-                X,
-                vector_mult_scalar(xib_coeff[0], k[0], NULL),
-                vector_mult_scalar(xib_coeff[1], k[2], NULL),
-                vector_mult_scalar(xib_coeff[2], k[3], NULL),
-                vector_mult_scalar(xib_coeff[3], k[4], NULL),
-                vector_mult_scalar(xib_coeff[4], k[5], NULL), xi_b);
-            tal = vector_abs(vector_subtract(xi_b, xi, tal), tal);
-            tal = vector_mult_scalar(1.0/h, tal, tal);
-            maxtal = vector_get(tal, 0);
-            for (int i = 1; i < tal->size; i++)
-                maxtal = max(maxtal, vector_get(tal, i));
-
-            if (maxtal <= eps)
-                break;
-
-            alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
-            h = alpha * h;
-            h = min(h, tf - t);
-            h = constrain(h, hmin, hmax);
-        }
-        t = t + h;
-        if (t >= tf)
-            last++;
-
-        alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
-        h = alpha * h;
-        h = min(h, tf - t);
-        h = constrain(h, hmin, hmax);
-        X = vector_copy(xi, X);
-
-        if (last < 2) {
-            fprintf(out, "%.15e", t);
-            for (int i = 0; i < xi->size; i++)
-                fprintf(out, "  %.15e", vector_get(xi, i));
-            fprintf(out, "\n");
-        }
-    }
-    fclose(out);
+void x1t(double t) {
+    return (double)(t + 1)/(double)(1 - t);
 }
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        printf("Uso: %s [caso]\n", argv[0]);
+        printf("Uso: %s caso\n", argv[0]);
+        printf("    1: Unidimensional:            Teste 1\n");
+        printf("    2: Multidimensional:          Teste 2\n");
+        printf("    3: Multidimensional Variavel: Teste 3\n");
+        printf("        Uso: %s 3 [m] (Padrao: 7)\n", argv[0]);
+        printf("    4: Circuito de Chua\n");
+        printf("        Uso: %s 4 [arquivo_dados] (Padrao: chua.txt)\n\n", argv[0]);
+        printf("Com o makefile use 'make' para executar todos os casos e gerar os graficos\n");
         exit(0);
     }
 
+    // Dados para o calculo em RKF
     vector_t* X0 = NULL;
     double t0    = 0.0;
     double tf    = 0.0;
     double eps   = 0.0;
     double h     = 0.0;
+
+    int m_caso3  = 7;
+
+	clock_t beg = clock();
 
     switch(argv[1][0]) {
         case '1':
@@ -224,7 +124,8 @@ int main(int argc, char* argv[]) {
             eps = 1e-5;
             h   = 0.1;
 
-            calculo(X0, t0, tf, eps, h, F1, "out.txt");
+            rkf45_solve(X0, t0, tf, eps, h, F1, "out1.txt");
+            rkf45_error(x1t, "out1.txt");
             break;
 
         case '2':
@@ -239,10 +140,14 @@ int main(int argc, char* argv[]) {
             eps = 1e-5;
             h   = 0.1;
 
-            calculo(X0, t0, tf, eps, h, F2, "out2.txt");
+            rkf45_solve(X0, t0, tf, eps, h, F2, "out2.txt");
             break;
 
         case '3':
+            if (argc > 2)
+                if ((m_caso3 = atoi(argv[2])) <= 0)
+                    error(ERR_NEGATIVE, "main");
+
             X0 = vector_create(m_caso3);
             for (int i = 0; i < X0->size; i++)
                 vector_set(X0, i, sin(M_PI*((double)(i+1)/((double)m_caso3 + 1.0))) + sin(m_caso3*M_PI*((double)(i + 1)/((double)m_caso3 + 1.0))));
@@ -252,11 +157,16 @@ int main(int argc, char* argv[]) {
             eps = 1e-5;
             h   = 0.1;
 
-            calculo(X0, t0, tf, eps, h, F3, "out3.txt");
+            rkf45_solve(X0, t0, tf, eps, h, F3, "out3.txt");
+            break;
+
+        case '4':
+            printf("Chua ainda nao implementado\n");
             break;
 
         default:
             printf("Erro! Escolha um caso valido\n");
     }
+	printf("Finished! Time: %.8lfs\n\n", (double)(clock() - beg)/CLOCKS_PER_SEC);
     return 0;
 }
