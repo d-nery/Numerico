@@ -15,7 +15,7 @@
 #include "matrix.h"
 
 #define c_security 2.0
-#define hmin       0.001
+#define hmin       1e-5
 #define hmax       1.0
 
 #define min(a, b)          ((a) < (b) ? (a) : (b))

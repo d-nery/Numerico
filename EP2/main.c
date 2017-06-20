@@ -116,7 +116,7 @@ vector_t* F_chua(double t, vector_t* X, vector_t* res) {
 }
 
 double x1t(double t) {
-    return (double)(t + 1)/(double)(1 - t);
+    return t + 1.0/(double)(1 - t);
 }
 
 int main(int argc, char* argv[]) {
@@ -195,9 +195,9 @@ int main(int argc, char* argv[]) {
             vector_set(X0, 2,   0.0);
 
             t0  = 0.0;
-            tf  = 0.1;
-            eps = 1e1;
-            h   = 0.1;
+            tf  = 0.05;
+            eps = 1e-5;
+            h   = 0.001;
 
             rkf45_solve(X0, t0, tf, eps, h, F_chua, "out4.txt");
             break;

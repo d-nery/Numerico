@@ -33,69 +33,86 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
         k[i] = vector_create(X0->size);
 
     double alpha;
-    vector_t* xi   = vector_create(X0->size);
-    vector_t* xi_b = vector_create(X0->size);
 
     double t = t0;
-    vector_t* X = vector_copy(X0, X);
-    vector_t* f_temp = VEC_NULL;
-    vector_t* tal    = VEC_NULL;
     double maxtal = 999;
     int last = 0;
 
-    while (t <= tf && last < 2) {
+    vector_t* xi   = vector_create(X0->size);
+    vector_t* xi_b = vector_create(X0->size);
+
+    vector_t* X = vector_copy(X0, X);
+    vector_t* f_temp = VEC_NULL;
+    vector_t* tal    = VEC_NULL;
+
+    vector_t* mult_temp = VEC_NULL;
+    vector_t* add_temp  = VEC_NULL;
+
+    int it = 0;
+    int go = 0;
+    while (t <= tf && last < 2 && !go) {
+        printf("Iteracao: %d\n", it++);
+        printf("-- t: %.12lf\n", t);
+        printf("-- h: %.12lf\n", h);
         maxtal = 999;
         while (maxtal > eps) {
             f_temp = f(t, X, f_temp);
             k[0] = vector_mult_scalar(h, f_temp, k[0]);
 
-            f_temp = f(t + h_coeff[0]*h,
-                vector_add(X,
-                    vector_mult_scalar(k2_coeff[0], k[0], NULL), NULL), f_temp);
+            mult_temp = vector_mult_scalar(k2_coeff[0], k[0], mult_temp);
+            add_temp  = vector_add(X, mult_temp, add_temp);
+            f_temp = f(t + h_coeff[0]*h, add_temp, f_temp);
             k[1] = vector_mult_scalar(h, f_temp, k[1]);
 
-            f_temp = f(t + h_coeff[1]*h,
-                vector_add_3(X,
-                    vector_mult_scalar(k3_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k3_coeff[1], k[1], NULL), NULL), f_temp);
+            mult_temp = vector_mult_scalar(k3_coeff[0], k[0], mult_temp);
+            add_temp  = vector_add(X, mult_temp, add_temp);
+            mult_temp = vector_mult_scalar(k3_coeff[1], k[1], mult_temp);
+            add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            f_temp = f(t + h_coeff[1]*h, add_temp, f_temp);
             k[2] = vector_mult_scalar(h, f_temp, k[2]);
 
-            f_temp = f(t + h_coeff[2]*h,
-                vector_add_4(X,
-                    vector_mult_scalar(k4_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k4_coeff[1], k[1], NULL),
-                    vector_mult_scalar(k4_coeff[2], k[2], NULL), NULL), f_temp);
+            mult_temp = vector_mult_scalar(k4_coeff[0], k[0], mult_temp);
+            add_temp  = vector_add(X, mult_temp, add_temp);
+            for (int i = 1; i <= 2; i++) {
+                mult_temp = vector_mult_scalar(k4_coeff[i], k[i], mult_temp);
+                add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            }
+            f_temp = f(t + h_coeff[2]*h, add_temp, f_temp);
             k[3] = vector_mult_scalar(h, f_temp, k[3]);
 
-            f_temp = f(t + h_coeff[3]*h,
-                vector_add_5(X,
-                    vector_mult_scalar(k5_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k5_coeff[1], k[1], NULL),
-                    vector_mult_scalar(k5_coeff[2], k[2], NULL),
-                    vector_mult_scalar(k5_coeff[3], k[3], NULL), NULL), f_temp);
+            mult_temp = vector_mult_scalar(k5_coeff[0], k[0], mult_temp);
+            add_temp  = vector_add(X, mult_temp, add_temp);
+            for (int i = 1; i <= 3; i++) {
+                mult_temp = vector_mult_scalar(k5_coeff[i], k[i], mult_temp);
+                add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            }
+            f_temp = f(t + h_coeff[3]*h, add_temp, f_temp);
             k[4] = vector_mult_scalar(h, f_temp, k[4]);
 
-            f_temp = f(t + h_coeff[4]*h,
-                vector_add_6(X,
-                    vector_mult_scalar(k6_coeff[0], k[0], NULL),
-                    vector_mult_scalar(k6_coeff[1], k[1], NULL),
-                    vector_mult_scalar(k6_coeff[2], k[2], NULL),
-                    vector_mult_scalar(k6_coeff[3], k[3], NULL),
-                    vector_mult_scalar(k6_coeff[4], k[4], NULL), NULL), f_temp);
+            mult_temp = vector_mult_scalar(k6_coeff[0], k[0], mult_temp);
+            add_temp  = vector_add(X, mult_temp, add_temp);
+            for (int i = 1; i <= 4; i++) {
+                mult_temp = vector_mult_scalar(k6_coeff[i], k[i], mult_temp);
+                add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            }
+            f_temp = f(t + h_coeff[4]*h, add_temp, f_temp);
             k[5] = vector_mult_scalar(h, f_temp, k[5]);
 
-            xi   = vector_add_5(X,
-                vector_mult_scalar(xi_coeff[0], k[0], NULL),
-                vector_mult_scalar(xi_coeff[1], k[2], NULL),
-                vector_mult_scalar(xi_coeff[2], k[3], NULL),
-                vector_mult_scalar(xi_coeff[3], k[4], NULL), xi);
+            mult_temp = vector_mult_scalar(xi_coeff[0], k[0], mult_temp);
+            add_temp  = vector_add(X, mult_temp, add_temp);
+            for (int i = 1; i <= 3; i++) {
+                mult_temp = vector_mult_scalar(xi_coeff[i], k[i+1], mult_temp);
+                add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            }
+            xi   = vector_copy(add_temp, xi);
 
-            xi_b = vector_add_6(X,
-                vector_mult_scalar(xib_coeff[0], k[0], NULL),
-                vector_mult_scalar(xib_coeff[1], k[2], NULL),
-                vector_mult_scalar(xib_coeff[2], k[3], NULL),
-                vector_mult_scalar(xib_coeff[3], k[4], NULL),
-                vector_mult_scalar(xib_coeff[4], k[5], NULL), xi_b);
+            mult_temp = vector_mult_scalar(xib_coeff[0], k[0], mult_temp);
+            add_temp  = vector_add(X, mult_temp, add_temp);
+            for (int i = 1; i <= 4; i++) {
+                mult_temp = vector_mult_scalar(xib_coeff[i], k[i+1], mult_temp);
+                add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            }
+            xi_b = vector_copy(add_temp, xi_b);
 
             tal = vector_abs(vector_subtract(xi_b, xi, tal), tal);
             tal = vector_mult_scalar(1.0/h, tal, tal);
@@ -109,7 +126,23 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
             alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
             h = alpha * h;
             h = min(h, tf - t);
-            // h = constrain(h, hmin, hmax);
+            h = constrain(h, hmin, hmax);
+
+            // for (int i = 0; i < 6; i++) {
+            //     printf("\n-- k%d:\n", i+1);
+            //     print_vector(k[i]);
+            // }
+            // printf("-- xi:\n");
+            // print_vector(xi);
+            // printf("-- xb:\n");
+            // print_vector(xi_b);
+            // printf("-- tal:\n");
+            // print_vector(tal);
+            // printf("-- maxtal: %.12lf\n", maxtal);
+            // printf("-- alpha:  %.12lf\n", alpha);
+            // printf("-- prox h: %.12lf\n", h);
+            // go = 1;
+            // break;
         }
         t = t + h;
         if (t >= tf)
@@ -118,7 +151,7 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
         alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
         h = alpha * h;
         h = min(h, tf - t);
-        // h = constrain(h, hmin, hmax);
+        h = constrain(h, hmin, hmax);
         X = vector_copy(xi, X);
 
         if (last < 2) {
