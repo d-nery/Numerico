@@ -1,9 +1,9 @@
 COMPILE  = gcc -Wall -Wextra -std=c99 -fshort-enums
-OPTIMIZE = -Ofast # -fopenmp
+OPTIMIZE = -O3 # -fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 
-all: plot
+all: map
 
 %.o: %.c
 	$(COMPILE) -c $< -o $@ $(OPTIMIZE)
@@ -35,8 +35,8 @@ run: map
 
 plot: out1.txt out2.txt out3.txt
 	@echo "Gerando graficos..."
-	@gnuplot -e "set term png; set output 'out1.png'; plot 'out1.txt', x+1/(1-x); set term x11"
-	@gnuplot -e "set term png; set output 'out2.png'; plot 'out2.txt' using 1:2, 'out2.txt' using 1:3, 'out2.txt' using 1:4, 'out2.txt' using 1:5, exp(-x)*sin(x)+exp(-3*x)*cos(3*x), exp(-x)*cos(x)+exp(-3*x)*sin(3*x), -exp(-x)*sin(x)+exp(-3*x)*cos(3*x), -exp(-x)*cos(x)+exp(-3*x)*sin(3*x); set term x11"
+	@gnuplot -e "set term png; set output 'out1.png'; plot 'out1.txt', x+1/(1-x)"
+	@gnuplot -e "set term png; set output 'out2.png'; plot 'out2.txt' using 1:2, 'out2.txt' using 1:3, 'out2.txt' using 1:4, 'out2.txt' using 1:5, exp(-x)*sin(x)+exp(-3*x)*cos(3*x), exp(-x)*cos(x)+exp(-3*x)*sin(3*x), -exp(-x)*sin(x)+exp(-3*x)*cos(3*x), -exp(-x)*cos(x)+exp(-3*x)*sin(3*x)"
 	@gnuplot -e "set term png; set output 'out3.png'; unset key; \
 		plot 'out3.txt' using 1:2, \
 		'out3.txt' using 1:3, \
@@ -51,8 +51,7 @@ plot: out1.txt out2.txt out3.txt
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*3/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*3/8), \
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*4/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*4/8), \
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*5/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*5/8), \
-		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*6/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*6/8)  \
-		; set term x11"
+		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*6/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*6/8)"
 
 clean:
 	rm -rf $(OBJECTS) map *.txt

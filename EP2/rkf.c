@@ -109,7 +109,7 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
             alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
             h = alpha * h;
             h = min(h, tf - t);
-            h = constrain(h, hmin, hmax);
+            // h = constrain(h, hmin, hmax);
         }
         t = t + h;
         if (t >= tf)
@@ -118,7 +118,7 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
         alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
         h = alpha * h;
         h = min(h, tf - t);
-        h = constrain(h, hmin, hmax);
+        // h = constrain(h, hmin, hmax);
         X = vector_copy(xi, X);
 
         if (last < 2) {
@@ -131,6 +131,6 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
     fclose(out);
 }
 
-void rkf45_error(void xt(double), char* file) {
+void rkf45_error(double xt(double), char* file) {
 
 }

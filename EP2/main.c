@@ -8,14 +8,15 @@
  *         Mateus Almeida Barbosa        - 9349072
  */
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <time.h>
 
 #include "rkf.h"
-#include "vector.h"
+#include "chua.h"
 #include "error.h"
+#include "vector.h"
 #include "matrix.h"
 
 #define M_PI 3.141592653589793
@@ -87,7 +88,34 @@ vector_t* F3(double t, vector_t* X, vector_t* res) {
     return res;
 }
 
-void x1t(double t) {
+vector_t* F_chua(double t, vector_t* X, vector_t* res) {
+    (void)t; // Avoids unused warning
+
+    if (res != VEC_NULL)
+        vector_free(res);
+    res = vector_create(X->size);
+
+    matrix_t* A = matrix_create(3, 3);
+    matrix_set(A, 0, 0, -1.0/(R*C1));
+    matrix_set(A, 0, 1,  1.0/(R*C1));
+    matrix_set(A, 0, 2,  0.0);
+    matrix_set(A, 1, 0,  1.0/(R*C2));
+    matrix_set(A, 1, 1, -1.0/(R*C2));
+    matrix_set(A, 1, 2, -1.0/(C2));
+    matrix_set(A, 2, 0,  0.0);
+    matrix_set(A, 2, 1, -1.0/(L));
+    matrix_set(A, 2, 2,  0.0);
+
+    res = vector_mult_matrix(A, X, res);
+
+	vector_set(res, 0, vector_get(res, 0) - g(vector_get(X, 0))/C1);
+
+    matrix_free(A);
+
+    return res;
+}
+
+double x1t(double t) {
     return (double)(t + 1)/(double)(1 - t);
 }
 
@@ -100,7 +128,7 @@ int main(int argc, char* argv[]) {
         printf("        Uso: %s 3 [m] (Padrao: 7)\n", argv[0]);
         printf("    4: Circuito de Chua\n");
         printf("        Uso: %s 4 [arquivo_dados] (Padrao: chua.txt)\n\n", argv[0]);
-        printf("Com o makefile use 'make' para executar todos os casos e gerar os graficos\n");
+        printf("Com o makefile use 'make plot' para executar todos os casos e gerar os graficos\n");
         exit(0);
     }
 
@@ -161,11 +189,21 @@ int main(int argc, char* argv[]) {
             break;
 
         case '4':
-            printf("Chua ainda nao implementado\n");
+            X0 = vector_create(3);
+            vector_set(X0, 0,  -0.5);
+            vector_set(X0, 1,  -0.2);
+            vector_set(X0, 2,   0.0);
+
+            t0  = 0.0;
+            tf  = 0.1;
+            eps = 1e1;
+            h   = 0.1;
+
+            rkf45_solve(X0, t0, tf, eps, h, F_chua, "out4.txt");
             break;
 
         default:
-            printf("Erro! Escolha um caso valido\n");
+            printf("Erro! Escolha um caso valido (1 - 4)\n");
     }
 	printf("Finished! Time: %.8lfs\n\n", (double)(clock() - beg)/CLOCKS_PER_SEC);
     return 0;
