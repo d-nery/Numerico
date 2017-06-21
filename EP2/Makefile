@@ -45,13 +45,13 @@ plot: out1.txt out2.txt out3.txt
 		'out3.txt' using 1:6, \
 		'out3.txt' using 1:7, \
 		'out3.txt' using 1:8, \
-		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*0/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*0/8), \
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*1/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*1/8), \
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*2/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*2/8), \
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*3/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*3/8), \
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*4/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*4/8), \
 		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*5/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*5/8), \
-		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*6/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*6/8)"
+		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*6/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*6/8), \
+		exp(-(2*(1-cos(pi/8)))*x)*sin(pi*7/8)+exp(-(2*(1-cos(7*pi/8)))*x)*sin(7*pi*7/8)"
 
 clean:
 	rm -rf $(OBJECTS) map *.txt

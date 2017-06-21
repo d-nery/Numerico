@@ -11,9 +11,9 @@
 #ifndef _CHUA_H_
 #define _CHUA_H_
 
-#define C1 10e-9
-#define C2 100e-9
-#define L  18e-3
+#define C1 10.0e-9
+#define C2 100.0e-9
+#define L  18.0e-3
 #define R  1000.0
 
 #define E    1.17391304

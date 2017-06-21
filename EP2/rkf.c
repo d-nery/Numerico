@@ -16,7 +16,7 @@
 #include "rkf.h"
 #include "chua.h"
 
-#define DEBUG
+#define DEBUG 1
 
 // Coeficientes do RKF45
 static const double h_coeff[]    = { 0.0, 1.0/4.0, 3.0/8.0, 12.0/13.0, 1.0, 1.0/2.0 };
@@ -93,7 +93,7 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
                 maxtal = max(maxtal, vector_get(tal, i));
             maxtal /= h;
 
-#ifdef DEBUG
+#if DEBUG > 2
             printf("k1: "); print_vector(k[0]);
             printf("k2: "); print_vector(k[1]);
             printf("k3: "); print_vector(k[2]);
@@ -105,25 +105,25 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
             printf("Tau maximo: %.8e\n", maxtal);
 #endif
             if (maxtal <= eps) {
-#ifdef DEBUG
+#if DEBUG > 1
                 printf("Resposta aceita\n");
 #endif
                 break;
             } else {
-#ifdef DEBUG
+#if DEBUG > 1
                 printf("Resposta rejeitada\n");
 #endif
             }
 
             alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
             h = alpha * h;
-            h = constrain(h, hmin, hmax);
-            h = min(h, tf - t);
-#ifdef DEBUG
-            printf("Alfa: %.8f\n", alpha);
-            printf("Novo h: %.8f\n\n", h);
+            // h = constrain(h, hmin, hmax);
+            // h = min(h, tf - t);
+#if DEBUG > 1
+            printf("Alfa:   %.8e\n", alpha);
+            printf("Novo h: %.8e\n\n", h);
 #endif
-            usleep(300*1000);
+            // usleep(300*1000);
         }
         t = t + h;
         X = vector_copy(xi, X);
@@ -133,10 +133,10 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
         h = constrain(h, hmin, hmax);
         h = min(h, tf - t);
 
-#ifdef DEBUG
-        printf("Alfa: %.8f\n", alpha);
-        printf("ti: %.8f  h: %.8f\n", t, h);
-        printf("Novo h: %.8f\n\n", h);
+#if DEBUG > 0
+        printf("Alfa:   %.8e\n", alpha);
+        printf("ti:     %.8e  h: %.8e\n", t, h);
+        printf("Novo h: %.8e\n\n", h);
 #endif
 
         fprintf(out, "%.15e", t);

@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
             vector_set(X0, 2,  0.0);
 
             t0  = 0.0;
-            tf  = 0.05;
+            tf  = 0.001;
             eps = 1e-5;
             h   = 0.001;
 
@@ -194,22 +194,13 @@ vector_t* F_chua(double t, vector_t* X, vector_t* res) {
         vector_free(res);
     res = vector_create(X->size);
 
-    matrix_t* A = matrix_create(3, 3);
-    matrix_set(A, 0, 0, -1.0/(R*C1));
-    matrix_set(A, 0, 1,  1.0/(R*C1));
-    matrix_set(A, 0, 2,  0.0);
-    matrix_set(A, 1, 0,  1.0/(R*C2));
-    matrix_set(A, 1, 1, -1.0/(R*C2));
-    matrix_set(A, 1, 2, -1.0/(C2));
-    matrix_set(A, 2, 0,  0.0);
-    matrix_set(A, 2, 1, -1.0/(L));
-    matrix_set(A, 2, 2,  0.0);
+    double Vc1 = vector_get(X, 0);
+    double Vc2 = vector_get(X, 1);
+    double Il  = vector_get(X, 2);
 
-    res = vector_mult_matrix(A, X, res);
-
-	vector_set(res, 0, vector_get(res, 0) - g(vector_get(X, 0))/C1);
-
-    matrix_free(A);
+    vector_set(res, 0,  1.0/(R*C1)*(Vc2 - Vc1) - 1.0/C1 * g(Vc1));
+    vector_set(res, 1,  1.0/(R*C2)*(Vc1 - Vc2) + 1.0/C2 * Il);
+    vector_set(res, 2, -1.0/L*Vc2);
 
     return res;
 }
