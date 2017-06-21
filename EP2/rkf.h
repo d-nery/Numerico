@@ -15,7 +15,7 @@
 #include "matrix.h"
 
 #define c_security 2.0
-#define hmin       1e-5
+#define hmin       1e-9
 #define hmax       1.0
 
 #define min(a, b)          ((a) < (b) ? (a) : (b))
@@ -37,10 +37,5 @@
  *  name -> nome do arquivo de saida dos dados
  */
 void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vector_t* f(double, vector_t*, vector_t*), char* name);
-
-vector_t* F1(double t, vector_t* X, vector_t* res);
-vector_t* F2(double t, vector_t* X, vector_t* res);
-vector_t* F3(double t, vector_t* X, vector_t* res);
-vector_t* F_chua(double t, vector_t* X, vector_t* res);
 
 #endif
