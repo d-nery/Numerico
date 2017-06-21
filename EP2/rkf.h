@@ -15,13 +15,32 @@
 #include "matrix.h"
 
 #define c_security 2.0
-#define hmin       1e-20
+#define hmin       1e-5
 #define hmax       1.0
 
 #define min(a, b)          ((a) < (b) ? (a) : (b))
 #define max(a, b)          ((a) > (b) ? (a) : (b))
 #define constrain(v, a, b) ((v) < (a) ? (a) : (v) > (b) ? (b) : (v))
 
+/**
+ * rkf45_solve(vector_t*, double, double, double, double, vector_t* ()(double, vector_t*, vector_t*), char*)
+ * Soluciona equacao diferencial pelo metodo RKF45
+ *
+ * Parametros:
+ *  X0   -> vetor com os valores iniciais
+ *  t0   -> tempo inicial
+ *  tf   -> tempo final
+ *  eps  -> precisão das iterações
+ *  h    -> h inicial
+ *  f    -> funcao F(t, X)
+ *  xt   -> funcao X(t), com resultado real da equacao, para calculo do erro
+ *  name -> nome do arquivo de saida dos dados
+ */
 void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vector_t* f(double, vector_t*, vector_t*), char* name);
+
+vector_t* F1(double t, vector_t* X, vector_t* res);
+vector_t* F2(double t, vector_t* X, vector_t* res);
+vector_t* F3(double t, vector_t* X, vector_t* res);
+vector_t* F_chua(double t, vector_t* X, vector_t* res);
 
 #endif

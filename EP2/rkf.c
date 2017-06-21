@@ -136,10 +136,14 @@ printf("x(i+1)_: "); print_vector(xi_b);
 printf("Tau maximo: %.8e\n", maxtal);
 #endif
             if (maxtal <= eps) {
-                // printf("Resposta aceita\n");
+#ifdef DEBUG
+printf("Resposta aceita\n");
+#endif
                 break;
             } else {
-                // printf("Resposta rejeitada\n");
+#ifdef DEBUG
+printf("Resposta rejeitada\n");
+#endif
             }
 
             alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
@@ -151,7 +155,7 @@ printf("Alfa: %.8f\n", alpha);
 printf("Novo h: %.8f\n\n", h);
 #endif
 
-        usleep(100*1000);
+            usleep(100*1000);
         }
         t = t + h;
         X = vector_copy(xi, X);
@@ -170,4 +174,98 @@ printf("Novo h: %.8f\n\n", h);
         fprintf(out, "\n");
     }
     fclose(out);
+}
+
+vector_t* F1(double t, vector_t* X, vector_t* res) {
+    if (res != VEC_NULL)
+        vector_free(res);
+    res = vector_create(X->size);
+
+    for (int i = 0; i < X->size; i++)
+        vector_set(res, i, 1.0 + pow(vector_get(X, i) - t, 2.0));
+
+    return res;
+}
+
+vector_t* F2(double t, vector_t* X, vector_t* res) {
+    (void)t; // Avoids unused warning
+
+    if (res != VEC_NULL)
+        vector_free(res);
+    res = vector_create(X->size);
+
+    matrix_t* A = matrix_create(4, 4);
+    matrix_set(A, 0, 0, -2);
+    matrix_set(A, 0, 1, -1);
+    matrix_set(A, 0, 2, -1);
+    matrix_set(A, 0, 3, -2);
+    matrix_set(A, 1, 0,  1);
+    matrix_set(A, 1, 1, -2);
+    matrix_set(A, 1, 2,  2);
+    matrix_set(A, 1, 3, -1);
+    matrix_set(A, 2, 0, -1);
+    matrix_set(A, 2, 1, -2);
+    matrix_set(A, 2, 2, -2);
+    matrix_set(A, 2, 3, -1);
+    matrix_set(A, 3, 0,  2);
+    matrix_set(A, 3, 1, -1);
+    matrix_set(A, 3, 2,  1);
+    matrix_set(A, 3, 3, -2);
+
+    res = vector_mult_matrix(A, X, res);
+
+    matrix_free(A);
+
+    return res;
+}
+
+vector_t* F3(double t, vector_t* X, vector_t* res) {
+    (void)t; // Avoids unused warning
+
+    if (res != VEC_NULL)
+        vector_free(res);
+    res = vector_create(X->size);
+
+    matrix_t* A = matrix_create(X->size, X->size);
+    for (int i = 0; i < A->l; i++) {
+        for (int j = 0; j < A->c; j++) {
+            if (i == j)
+                matrix_set(A, i, j, -2.0);
+            else if ((i < A->l - 1 && j == i + 1) || (j < A->c - 1 && i == j + 1))
+                matrix_set(A, i, j, 1);
+        }
+    }
+
+    res = vector_mult_matrix(A, X, res);
+
+    matrix_free(A);
+
+    return res;
+}
+
+vector_t* F_chua(double t, vector_t* X, vector_t* res) {
+    (void)t; // Avoids unused warning
+
+    if (res != VEC_NULL)
+        vector_free(res);
+    res = vector_create(X->size);
+
+    matrix_t* A = matrix_create(3, 3);
+    matrix_set(A, 0, 0, -1.0/(R*C1));
+    matrix_set(A, 0, 1,  1.0/(R*C1));
+    matrix_set(A, 0, 2,  0.0);
+    matrix_set(A, 1, 0,  1.0/(R*C2));
+    matrix_set(A, 1, 1, -1.0/(R*C2));
+    matrix_set(A, 1, 2, -1.0/(C2));
+    matrix_set(A, 2, 0,  0.0);
+    matrix_set(A, 2, 1, -1.0/(L));
+    matrix_set(A, 2, 2,  0.0);
+
+    res = vector_mult_matrix(A, X, res);
+
+	vector_set(res, 0, vector_get(res, 0) - g(vector_get(X, 0))/C1);
+
+    matrix_free(A);
+
+    return res;
 }
