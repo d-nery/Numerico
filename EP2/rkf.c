@@ -11,8 +11,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <unistd.h>
 
 #include "rkf.h"
+
+// #define DEBUG
 
 // Coeficientes do RKF45
 static const double h_coeff[]   = { 1.0/4.0, 3.0/8.0, 12.0/13.0, 1.0, 1.0/2.0 };
@@ -36,7 +39,7 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
 
     double t = t0;
     double maxtal = 999;
-    int last = 0;
+    // int last = 0;
 
     vector_t* xi   = vector_create(X0->size);
     vector_t* xi_b = vector_create(X0->size);
@@ -49,12 +52,11 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
     vector_t* add_temp  = VEC_NULL;
 
     int it = 0;
-    int go = 0;
-    while (t <= tf && last < 2 && !go) {
+    while (t < tf) {
         printf("Iteracao: %d\n", it++);
         printf("-- t: %.12lf\n", t);
         printf("-- h: %.12lf\n", h);
-        maxtal = 999;
+        maxtal = eps + 1;
         while (maxtal > eps) {
             f_temp = f(t, X, f_temp);
             k[0] = vector_mult_scalar(h, f_temp, k[0]);
@@ -66,8 +68,10 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
 
             mult_temp = vector_mult_scalar(k3_coeff[0], k[0], mult_temp);
             add_temp  = vector_add(X, mult_temp, add_temp);
-            mult_temp = vector_mult_scalar(k3_coeff[1], k[1], mult_temp);
-            add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            for (int i = 1; i <= 1; i++) {
+                mult_temp = vector_mult_scalar(k3_coeff[i], k[i], mult_temp);
+                add_temp  = vector_add(add_temp, mult_temp, add_temp);
+            }
             f_temp = f(t + h_coeff[1]*h, add_temp, f_temp);
             k[2] = vector_mult_scalar(h, f_temp, k[2]);
 
@@ -115,55 +119,55 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
             xi_b = vector_copy(add_temp, xi_b);
 
             tal = vector_abs(vector_subtract(xi_b, xi, tal), tal);
-            tal = vector_mult_scalar(1.0/h, tal, tal);
             maxtal = vector_get(tal, 0);
             for (int i = 1; i < tal->size; i++)
                 maxtal = max(maxtal, vector_get(tal, i));
+            maxtal /= h;
 
-            if (maxtal <= eps)
+#ifdef DEBUG
+printf("k1: "); print_vector(k[0]);
+printf("k2: "); print_vector(k[1]);
+printf("k3: "); print_vector(k[2]);
+printf("k4: "); print_vector(k[3]);
+printf("k5: "); print_vector(k[4]);
+printf("k6: "); print_vector(k[5]);
+printf("x(i+1):  "); print_vector(xi);
+printf("x(i+1)_: "); print_vector(xi_b);
+printf("Tau maximo: %.8e\n", maxtal);
+#endif
+            if (maxtal <= eps) {
+                // printf("Resposta aceita\n");
                 break;
+            } else {
+                // printf("Resposta rejeitada\n");
+            }
 
             alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
             h = alpha * h;
-            h = min(h, tf - t);
             h = constrain(h, hmin, hmax);
+            h = min(h, tf - t);
+#ifdef DEBUG
+printf("Alfa: %.8f\n", alpha);
+printf("Novo h: %.8f\n\n", h);
+#endif
 
-            // for (int i = 0; i < 6; i++) {
-            //     printf("\n-- k%d:\n", i+1);
-            //     print_vector(k[i]);
-            // }
-            // printf("-- xi:\n");
-            // print_vector(xi);
-            // printf("-- xb:\n");
-            // print_vector(xi_b);
-            // printf("-- tal:\n");
-            // print_vector(tal);
-            // printf("-- maxtal: %.12lf\n", maxtal);
-            // printf("-- alpha:  %.12lf\n", alpha);
-            // printf("-- prox h: %.12lf\n", h);
-            // go = 1;
-            // break;
+        usleep(100*1000);
         }
         t = t + h;
-        if (t >= tf)
-            last++;
+        X = vector_copy(xi, X);
+// printf("ti: %.8f  h: %.8f\n", t, h);
 
         alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
+// printf("Alfa: %.8f\n", alpha);
         h = alpha * h;
-        h = min(h, tf - t);
         h = constrain(h, hmin, hmax);
-        X = vector_copy(xi, X);
+        h = min(h, tf - t);
+// printf("Novo h: %.8f\n\n", h);
 
-        if (last < 2) {
-            fprintf(out, "%.15e", t);
-            for (int i = 0; i < xi->size; i++)
-                fprintf(out, "  %.15e", vector_get(xi, i));
-            fprintf(out, "\n");
-        }
+        fprintf(out, "%.15e", t);
+        for (int i = 0; i < xi->size; i++)
+            fprintf(out, "  %.15e", vector_get(xi, i));
+        fprintf(out, "\n");
     }
     fclose(out);
-}
-
-void rkf45_error(double xt(double), char* file) {
-
 }

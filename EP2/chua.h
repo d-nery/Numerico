@@ -29,13 +29,6 @@
 //              (v) >=  E && (v) < Emax   ? (double)(Gb*(v) + (Ga - Gb)*E)                  : \
 //                                          (double)(Gc*(v) + Emax*(Gb - Gc) + E*(Ga - Gb))
 
-inline double g(double v) {
-    return
-        (v) <= -Emax              ? (Gc*(v) + Emax*(Gc - Gb) + E*(Gb - Ga)) :
-        (v) >  -Emax && (v) <= -E ? (Gb*(v) + (Gb - Ga)*E)                  :
-        (v) >  -E && (v) < E      ? (Ga*(v))                                :
-        (v) >=  E && (v) < Emax   ? (Gb*(v) + (Ga - Gb)*E)                  :
-                                    (Gc*(v) + Emax*(Gb - Gc) + E*(Ga - Gb));
-}
+double g(double v);
 
 #endif

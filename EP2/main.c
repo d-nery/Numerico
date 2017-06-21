@@ -115,8 +115,27 @@ vector_t* F_chua(double t, vector_t* X, vector_t* res) {
     return res;
 }
 
-double x1t(double t) {
-    return t + 1.0/(double)(1 - t);
+vector_t* x1t(double t, vector_t* ans) {
+    vector_set(ans, 0, t + 1.0/(double)(1 - t));
+
+    return ans;
+}
+
+vector_t* x2t(double t, vector_t* ans) {
+    vector_set(ans, 0,  exp(-t)*sin(t) + exp(-3*t)*cos(3*t));
+    vector_set(ans, 1,  exp(-t)*cos(t) + exp(-3*t)*sin(3*t));
+    vector_set(ans, 2, -exp(-t)*sin(t) + exp(-3*t)*cos(3*t));
+    vector_set(ans, 3, -exp(-t)*cos(t) + exp(-3*t)*sin(3*t));
+
+    return ans;
+}
+
+vector_t* x3t(double t, vector_t* ans) {
+    int m = ans->size;
+    for (int i = 0; i < m; i++)
+        vector_set(ans, i, exp(-(2*(1-cos(M_PI/(m + 1))))*t)*sin(M_PI*i/(m + 1))+exp(-(2*(1-cos(m*M_PI/(m + 1))))*t)*sin(m*M_PI*i/(m + 1)));
+
+    return ans;
 }
 
 int main(int argc, char* argv[]) {
@@ -127,7 +146,7 @@ int main(int argc, char* argv[]) {
         printf("    3: Multidimensional Variavel: Teste 3\n");
         printf("        Uso: %s 3 [m] (Padrao: 7)\n", argv[0]);
         printf("    4: Circuito de Chua\n");
-        printf("        Uso: %s 4 [arquivo_dados] (Padrao: chua.txt)\n\n", argv[0]);
+        printf("        Uso: %s 4\n\n", argv[0]);
         printf("Com o makefile use 'make plot' para executar todos os casos e gerar os graficos\n");
         exit(0);
     }
@@ -146,14 +165,14 @@ int main(int argc, char* argv[]) {
     switch(argv[1][0]) {
         case '1':
             X0 = vector_create(1);
-            vector_set(X0, 0,  -18.95);
+            vector_set(X0, 0, -18.95);
+
             t0  = 1.05;
             tf  = 3.0;
             eps = 1e-5;
             h   = 0.1;
 
             rkf45_solve(X0, t0, tf, eps, h, F1, "out1.txt");
-            rkf45_error(x1t, "out1.txt");
             break;
 
         case '2':
@@ -190,9 +209,9 @@ int main(int argc, char* argv[]) {
 
         case '4':
             X0 = vector_create(3);
-            vector_set(X0, 0,  -0.5);
-            vector_set(X0, 1,  -0.2);
-            vector_set(X0, 2,   0.0);
+            vector_set(X0, 0, -0.5);
+            vector_set(X0, 1, -0.2);
+            vector_set(X0, 2,  0.0);
 
             t0  = 0.0;
             tf  = 0.05;

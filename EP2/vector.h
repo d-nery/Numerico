@@ -36,10 +36,6 @@ double vector_norm(const vector_t* vector);
 double vector_multiply(const vector_t* u, const vector_t* v);
 
 vector_t* vector_add(const vector_t* u, const vector_t* v, vector_t* r);
-vector_t* vector_add_3(const vector_t* u, const vector_t* v, const vector_t* w, vector_t* r);
-vector_t* vector_add_4(const vector_t* u, const vector_t* v, const vector_t* w, const vector_t* z, vector_t* r);
-vector_t* vector_add_5(const vector_t* u, const vector_t* v, const vector_t* w, const vector_t* z, const vector_t* a, vector_t* r);
-vector_t* vector_add_6(const vector_t* u, const vector_t* v, const vector_t* w, const vector_t* z, const vector_t* a, const vector_t* b, vector_t* r);
 
 vector_t* vector_subtract(const vector_t* u, const vector_t* v, vector_t* r);
 vector_t* vector_mult_scalar(const double n, const vector_t* u, vector_t* r);

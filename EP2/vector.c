@@ -22,8 +22,9 @@ void print_vector(const vector_t* vector) {
 	for (int i = 0; i < vector->size; i++) {
 		if (vector_get(vector, i) >= 0)
 			printf(" ");
-		printf("%.12e\n", vector_get(vector, i));
+		printf("%.8e ", vector_get(vector, i));
 	}
+	printf("\n");
 }
 
 vector_t* vector_create(const int size) {
@@ -141,26 +142,6 @@ vector_t* vector_add(const vector_t* u, const vector_t* v, vector_t* r) {
 	for (int i = 0; i < u->size; i++)
 		vector_set(r, i, vector_get(u, i) + vector_get(v, i));
 
-	return r;
-}
-
-vector_t* vector_add_3(const vector_t* u, const vector_t* v, const vector_t* w, vector_t* r) {
-	r = vector_add(vector_add(u, v, r), w, r);
-	return r;
-}
-
-vector_t* vector_add_4(const vector_t* u, const vector_t* v, const vector_t* w, const vector_t* z, vector_t* r) {
-	r = vector_add_3(vector_add(u, v, r), w, z, r);
-	return r;
-}
-
-vector_t* vector_add_5(const vector_t* u, const vector_t* v, const vector_t* w, const vector_t* z, const vector_t* a, vector_t* r) {
-	r = vector_add_4(vector_add(u, v, r), w, z, a, r);
-	return r;
-}
-
-vector_t* vector_add_6(const vector_t* u, const vector_t* v, const vector_t* w, const vector_t* z, const vector_t* a, const vector_t* b, vector_t* r) {
-	r = vector_add_5(vector_add(u, v, r), w, z, a, b, r);
 	return r;
 }
 
