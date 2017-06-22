@@ -36,7 +36,8 @@
  *  xt   -> funcao X(t), com resultado real da equacao, para calculo do erro
  *  name -> nome do arquivo de saida dos dados
  */
-void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vector_t* f(double, vector_t*, vector_t*), char* name);
+void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h,
+    vector_t* f(double, vector_t*, vector_t*), vector_t* xt(double, vector_t*), char* name);
 
 
 #endif

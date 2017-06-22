@@ -31,7 +31,8 @@ static const double k_coeff[][5] = {{ 0.0,            0.0,           0.0,       
 static const double xi_coeff[]  = { 25.0/216.0, 1408.0/2565.0, 2197.0/4104.0, -1.0/5.0 };
 static const double xib_coeff[] = { 16.0/135.0, 6656.0/12825.0, 28561.0/56430.0, -9.0/50.0, 2.0/55.0 };
 
-void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vector_t* f(double, vector_t*, vector_t*), char* name) {
+void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h,
+    vector_t* f(double, vector_t*, vector_t*), vector_t* xt(double, vector_t*), char* name) {
     // Arquivo para os dados de saida
     FILE* out = fopen(name, "w");
 
@@ -43,6 +44,7 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
 
     double t = t0;
     double maxtal = 999;
+    double err = 0;
     // int last = 0;
 
     vector_t* xi   = vector_create(X0->size);
@@ -54,6 +56,8 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
 
     vector_t* mult_temp = VEC_NULL;
     vector_t* add_temp  = VEC_NULL;
+
+    vector_t* err_temp = vector_create(X0->size);
 
     int it = 0;
     while (t < tf) {
@@ -94,12 +98,12 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
             maxtal /= h;
 
 #if DEBUG > 2
-            printf("k1: "); print_vector(k[0]);
-            printf("k2: "); print_vector(k[1]);
-            printf("k3: "); print_vector(k[2]);
-            printf("k4: "); print_vector(k[3]);
-            printf("k5: "); print_vector(k[4]);
-            printf("k6: "); print_vector(k[5]);
+            printf("k1:      "); print_vector(k[0]);
+            printf("k2:      "); print_vector(k[1]);
+            printf("k3:      "); print_vector(k[2]);
+            printf("k4:      "); print_vector(k[3]);
+            printf("k5:      "); print_vector(k[4]);
+            printf("k6:      "); print_vector(k[5]);
             printf("x(i+1):  "); print_vector(xi);
             printf("x(i+1)_: "); print_vector(xi_b);
             printf("Tau maximo: %.8e\n", maxtal);
@@ -117,8 +121,8 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
 
             alpha = pow((eps)/(c_security*maxtal), 1.0/4.0);
             h = alpha * h;
-            // h = constrain(h, hmin, hmax);
-            // h = min(h, tf - t);
+            h = constrain(h, hmin, hmax);
+            h = min(h, tf - t);
 #if DEBUG > 1
             printf("Alfa:   %.8e\n", alpha);
             printf("Novo h: %.8e\n\n", h);
@@ -133,9 +137,12 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
         h = constrain(h, hmin, hmax);
         h = min(h, tf - t);
 
+        err_temp = xt(t, err_temp);
+        err = vector_norm(vector_subtract(xi, err_temp, err_temp));
+
 #if DEBUG > 0
         printf("Alfa:   %.8e\n", alpha);
-        printf("ti:     %.8e  h: %.8e\n", t, h);
+        printf("ti:     %.8e  h: %.8e  Err: %.8e\n", t, h, err);
         printf("Novo h: %.8e\n\n", h);
 #endif
 
@@ -143,6 +150,7 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h, vecto
         for (int i = 0; i < xi->size; i++)
             fprintf(out, "  %.15e", vector_get(xi, i));
         fprintf(out, "\n");
+        fflush(out);
     }
     fclose(out);
 }

@@ -29,6 +29,7 @@ vector_t* F_chua(double t, vector_t* X, vector_t* res);
 vector_t* x1t(double t, vector_t* res);
 vector_t* x2t(double t, vector_t* res);
 vector_t* x3t(double t, vector_t* res);
+vector_t* xt_chua(double t, vector_t* res);
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]) {
             eps = 1e-5;
             h   = 0.1;
 
-            rkf45_solve(X0, t0, tf, eps, h, F1, "out1.txt");
+            rkf45_solve(X0, t0, tf, eps, h, F1, x1t, "out1.txt");
             break;
 
         case '2':
@@ -79,7 +80,7 @@ int main(int argc, char* argv[]) {
             eps = 1e-5;
             h   = 0.1;
 
-            rkf45_solve(X0, t0, tf, eps, h, F2, "out2.txt");
+            rkf45_solve(X0, t0, tf, eps, h, F2, x2t, "out2.txt");
             break;
 
         case '3':
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
             eps = 1e-5;
             h   = 0.1;
 
-            rkf45_solve(X0, t0, tf, eps, h, F3, "out3.txt");
+            rkf45_solve(X0, t0, tf, eps, h, F3, x3t, "out3.txt");
             break;
 
         case '4':
@@ -106,11 +107,11 @@ int main(int argc, char* argv[]) {
             vector_set(X0, 2,  0.0);
 
             t0  = 0.0;
-            tf  = 0.001;
-            eps = 1e-5;
+            tf  = 0.05;
+            eps = 4e-1;
             h   = 0.001;
 
-            rkf45_solve(X0, t0, tf, eps, h, F_chua, "out4.txt");
+            rkf45_solve(X0, t0, tf, eps, h, F_chua, xt_chua, "out4.txt");
             break;
 
         default:
@@ -222,8 +223,12 @@ vector_t* x2t(double t, vector_t* res) {
 
 vector_t* x3t(double t, vector_t* res) {
     int m = res->size;
-    for (int i = 0; i < m; i++)
-        vector_set(res, i, exp(-(2*(1-cos(M_PI/(m + 1))))*t)*sin(M_PI*i/(m + 1))+exp(-(2*(1-cos(m*M_PI/(m + 1))))*t)*sin(m*M_PI*i/(m + 1)));
+    for (int i = 1; i <= m; i++)
+        vector_set(res, i-1, exp(-(2*(1-cos(M_PI/(m + 1))))*t)*sin(M_PI*i/(m + 1))+exp(-(2*(1-cos(m*M_PI/(m + 1))))*t)*sin(m*M_PI*i/(m + 1)));
 
+    return res;
+}
+
+vector_t* xt_chua(double t, vector_t* res) {
     return res;
 }

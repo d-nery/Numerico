@@ -23,12 +23,6 @@
 #define Gb -9e-3/22
 #define Gc 4.591e-3
 
-// #define g(v) (v) <= -Emax              ? (double)(Gc*(v) + Emax*(Gc - Gb) + E*(Gb - Ga)) : \
-//              (v) >  -Emax && (v) <= -E ? (double)(Gb*(v) + (Gb - Ga)*E)                  : \
-//              (v) >  -E && (v) < E      ? (double)(Ga*(v))                                : \
-//              (v) >=  E && (v) < Emax   ? (double)(Gb*(v) + (Ga - Gb)*E)                  : \
-//                                          (double)(Gc*(v) + Emax*(Gb - Gc) + E*(Ga - Gb))
-
 double g(double v);
 
 #endif
