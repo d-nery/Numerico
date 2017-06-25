@@ -16,7 +16,7 @@
 #include "rkf.h"
 #include "chua.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 // Coeficientes do RKF45
 static const double h_coeff[]    = { 0.0, 1.0/4.0, 3.0/8.0, 12.0/13.0, 1.0, 1.0/2.0 };

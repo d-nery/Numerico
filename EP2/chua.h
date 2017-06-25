@@ -14,7 +14,7 @@
 #define C1 10.0e-9
 #define C2 100.0e-9
 #define L  18.0e-3
-#define R  1000.0
+// #define R  1000.0
 
 #define E    1.17391304
 #define Emax 8.1818

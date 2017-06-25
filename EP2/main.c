@@ -31,6 +31,8 @@ vector_t* x2t(double t, vector_t* res);
 vector_t* x3t(double t, vector_t* res);
 vector_t* xt_chua(double t, vector_t* res);
 
+double R = 1500;
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         printf("Uso: %s caso\n", argv[0]);
@@ -111,7 +113,13 @@ int main(int argc, char* argv[]) {
             eps = 4e-1;
             h   = 0.001;
 
-            rkf45_solve(X0, t0, tf, eps, h, F_chua, xt_chua, "out4.txt");
+            char buffer[256];
+
+            for (; R < 2001; R++) {
+                sprintf(buffer, "out4_%04.0f.txt", R);
+                printf("Começando R = %04.0f\n", R);
+                rkf45_solve(X0, t0, tf, eps, h, F_chua, xt_chua, buffer);
+            }
             break;
 
         default:

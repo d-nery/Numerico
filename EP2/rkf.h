@@ -16,7 +16,7 @@
 
 #define c_security 2.0
 #define hmin       1e-9
-#define hmax       1.0
+#define hmax       1e-2
 
 #define min(a, b)          ((a) < (b) ? (a) : (b))
 #define max(a, b)          ((a) > (b) ? (a) : (b))
