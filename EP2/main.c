@@ -31,7 +31,7 @@ vector_t* x2t(double t, vector_t* res);
 vector_t* x3t(double t, vector_t* res);
 vector_t* xt_chua(double t, vector_t* res);
 
-double R = 1300;
+double R = 1537;
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -42,7 +42,6 @@ int main(int argc, char* argv[]) {
         printf("        Uso: %s 3 [m] (Padrao: 7)\n", argv[0]);
         printf("    4: Circuito de Chua\n");
         printf("        Uso: %s 4\n\n", argv[0]);
-        printf("Com o makefile use 'make plot' para executar todos os casos e gerar os graficos\n");
         exit(0);
     }
 
@@ -103,6 +102,10 @@ int main(int argc, char* argv[]) {
             break;
 
         case '4':
+			if (argc > 2)
+                if ((R = atof(argv[2])) <= 0)
+                    error(ERR_NEGATIVE, "main");
+
             X0 = vector_create(3);
             vector_set(X0, 0, -0.5);
             vector_set(X0, 1, -0.2);
@@ -114,21 +117,21 @@ int main(int argc, char* argv[]) {
             h   = 0.001;
 
             char buffer[256];
-			clock_t it;
-			double t_exec;
+			// clock_t it;
+			// double t_exec;
 
-			FILE* out2 = fopen("tempos.txt", "w");
+			// FILE* out2 = fopen("tempos.txt", "w");
 
-            for (; R < 2000; R++) {
+            for (; R < 1550; R++) {
                 sprintf(buffer, "out4_%.0f.txt", R);
                 printf("Começando R = %04.0f\n", R);
-				it = clock();
+				// it = clock();
                 rkf45_solve(X0, t0, tf, eps, h, F_chua, xt_chua, buffer);
-				t_exec = (double)(clock() - it)/CLOCKS_PER_SEC;
-				fprintf(out2, "%.0f  %.8e\n", R, t_exec);
+			// 	t_exec = (double)(clock() - it)/CLOCKS_PER_SEC;
+			// 	fprintf(out2, "%.0f  %.8e\n", R, t_exec);
             }
 
-			fclose(out2);
+			// fclose(out2);
             break;
 
         default:

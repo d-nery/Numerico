@@ -9,12 +9,12 @@ figure;
 hold on;
 plot(t, X, '.');
 fplot(xt, [t(1) t(end)]);
+title('Teste 1', 'FontSize', 16);
+xlabel('t', 'FontSize', 16);
+ylabel('x', 'FontSize', 16);
 
-title('Teste 1');
-xlabel('t');
-ylabel('x');
-
-legend('Pontos calculados', 'Valor real');
+lgd = legend('Pontos calculados', 'Valor real');
+lgd.FontSize = 16;
 
 %% Parte 2
 X = dlmread('out2.txt');
@@ -77,35 +77,37 @@ s2 = subplot(4,3,10);
 s3 = subplot(4,3,11);
 s4 = subplot(4,3,12);
 
-for n = 1400:2499
+n = 1538;
+
+% for n = 1535:1549
     X = dlmread(['out4_' int2str(n) '.txt']);
     t   = X(:,1);
     Vc1 = X(:,2);
     Vc2 = X(:,3);
     Il  = X(:,4);
     
-    plot3(s1, Vc1, Vc2, Il, '-b');
+    p = plot3(s1, Vc1, Vc2, Il, '-b');
     view([45 45]);
     title(s1, ['R = ' int2str(n)]);
-    xlabel(s1, 'VC1');
-    ylabel(s1, 'VC2');
-    zlabel(s1, 'IL');
+    xlabel(s1, 'VC1', 'FontSize', 16);
+    ylabel(s1, 'VC2', 'FontSize', 16);
+    zlabel(s1, 'IL', 'FontSize', 16);
     
     plot(s2, t, Vc1, '-b');
-    ylabel(s2, 'VC1');
-    xlabel(s2, 'Tempo (s)');
+    ylabel(s2, 'VC1', 'FontSize', 16);
+    xlabel(s2, 'Tempo (s)', 'FontSize', 16);
 
     
     plot(s3, t, Vc2, '-b');
-    ylabel(s3, 'VC2');
-    xlabel(s3, 'Tempo (s)');
+    ylabel(s3, 'VC2', 'FontSize', 16);
+    xlabel(s3, 'Tempo (s)', 'FontSize', 16);
     
     plot(s4, t, Il, '-b');
     ylabel(s4, 'IL');
     xlabel(s4, 'Tempo (s)');
     
     pause(0.1);
-end
+% end
 
 %% Tempos de execuçcao
 T = dlmread('tempos.txt');
