@@ -33,11 +33,12 @@ for j = 1:4
     fplot(xt{j}, [t(1) t(end)]);
 end
 
-title('Teste 2');
-xlabel('t');
-ylabel('x');
+title('Teste 2', 'FontSize', 16);
+xlabel('t', 'FontSize', 16);
+ylabel('x', 'FontSize', 16);
 
-legend('X1 calculado', 'X1 real', 'X2 calculado', 'X2 real', 'X3 calculado', 'X3 real', 'X4 calculado', 'X4 real');
+lgd = legend('X1 calculado', 'X1 real', 'X2 calculado', 'X2 real', 'X3 calculado', 'X3 real', 'X4 calculado', 'X4 real');
+lgd.FontSize = 16;
 
 %% Parte 3
 X = dlmread('out3.txt');
@@ -58,17 +59,19 @@ for j = 1:7
     fplot(xt{j}, [t(1) t(end)]);
 end
 
-title('Teste 3');
-xlabel('t');
-ylabel('x');
+title('Teste 3', 'FontSize', 16);
+xlabel('t', 'FontSize', 16);
+ylabel('x', 'FontSize', 16);
 
-legend('X1 calculado', 'X1 real', ...
+lgd = legend('X1 calculado', 'X1 real', ...
     'X2 calculado', 'X2 real', ...
     'X3 calculado', 'X3 real', ...
     'X4 calculado', 'X4 real', ...
     'X5 calculado', 'X5 real', ...
     'X6 calculado', 'X6 real', ...
     'X7 calculado', 'X7 real');
+
+lgd.FontSize = 16;
 
 %% Parte 4 - Chua
 f1 = figure;
@@ -77,7 +80,7 @@ s2 = subplot(4,3,10);
 s3 = subplot(4,3,11);
 s4 = subplot(4,3,12);
 
-n = 1538;
+n = 2500;
 
 % for n = 1535:1549
     X = dlmread(['out4_' int2str(n) '.txt']);
