@@ -10,6 +10,12 @@ hold on;
 plot(t, X, '.');
 fplot(xt, [t(1) t(end)]);
 
+title('Teste 1');
+xlabel('t');
+ylabel('x');
+
+legend('Pontos calculados', 'Valor real');
+
 %% Parte 2
 X = dlmread('out2.txt');
 t = X(:,1);
@@ -26,6 +32,12 @@ for j = 1:4
     plot(t, X(:,j), '.');
     fplot(xt{j}, [t(1) t(end)]);
 end
+
+title('Teste 2');
+xlabel('t');
+ylabel('x');
+
+legend('X1 calculado', 'X1 real', 'X2 calculado', 'X2 real', 'X3 calculado', 'X3 real', 'X4 calculado', 'X4 real');
 
 %% Parte 3
 X = dlmread('out3.txt');
@@ -46,33 +58,61 @@ for j = 1:7
     fplot(xt{j}, [t(1) t(end)]);
 end
 
+title('Teste 3');
+xlabel('t');
+ylabel('x');
+
+legend('X1 calculado', 'X1 real', ...
+    'X2 calculado', 'X2 real', ...
+    'X3 calculado', 'X3 real', ...
+    'X4 calculado', 'X4 real', ...
+    'X5 calculado', 'X5 real', ...
+    'X6 calculado', 'X6 real', ...
+    'X7 calculado', 'X7 real');
+
 %% Parte 4 - Chua
-X = dlmread('out4.txt');
-t   = X(:,1);
-Vc1 = X(:,2);
-Vc2 = X(:,3);
-Il  = X(:,4);
+f1 = figure;
+s1 = subplot(4,3,[1 2 3 4 5 6 7 8 9]);
+s2 = subplot(4,3,10);
+s3 = subplot(4,3,11);
+s4 = subplot(4,3,12);
 
+for n = 1400:2499
+    X = dlmread(['out4_' int2str(n) '.txt']);
+    t   = X(:,1);
+    Vc1 = X(:,2);
+    Vc2 = X(:,3);
+    Il  = X(:,4);
+    
+    plot3(s1, Vc1, Vc2, Il, '-b');
+    view([45 45]);
+    title(s1, ['R = ' int2str(n)]);
+    xlabel(s1, 'VC1');
+    ylabel(s1, 'VC2');
+    zlabel(s1, 'IL');
+    
+    plot(s2, t, Vc1, '-b');
+    ylabel(s2, 'VC1');
+    xlabel(s2, 'Tempo (s)');
+
+    
+    plot(s3, t, Vc2, '-b');
+    ylabel(s3, 'VC2');
+    xlabel(s3, 'Tempo (s)');
+    
+    plot(s4, t, Il, '-b');
+    ylabel(s4, 'IL');
+    xlabel(s4, 'Tempo (s)');
+    
+    pause(0.1);
+end
+
+%% Tempos de execuçcao
+T = dlmread('tempos.txt');
+R = T(:,1);
+T = T(:,2);
 figure;
-hold on;
-plot3(Vc1, Vc2, Il, '-b');
-title('R = 1000');
-xlabel('VC1');
-ylabel('VC2');
-zlabel('IL');
-
-figure;
-subplot(3,1,1);
-hold on;
-plot(t, Vc1, '-b');
-title('R = 1000');
-ylabel('VC1');
-
-subplot(3,1,2);
-plot(t, Vc2, '-b');
-ylabel('VC2');
-
-subplot(3,1,3);
-plot(t, Il, '-b');
-ylabel('IL');
-xlabel('Tempo (s)');
+plot(R, T, '-');
+title('Tempos de execução');
+xlabel('R (ohm)');
+ylabel('Tempo (s)');

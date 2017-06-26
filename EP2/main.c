@@ -31,7 +31,7 @@ vector_t* x2t(double t, vector_t* res);
 vector_t* x3t(double t, vector_t* res);
 vector_t* xt_chua(double t, vector_t* res);
 
-double R = 1500;
+double R = 1300;
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -114,12 +114,21 @@ int main(int argc, char* argv[]) {
             h   = 0.001;
 
             char buffer[256];
+			clock_t it;
+			double t_exec;
 
-            for (; R < 2001; R++) {
-                sprintf(buffer, "out4_%04.0f.txt", R);
+			FILE* out2 = fopen("tempos.txt", "w");
+
+            for (; R < 2000; R++) {
+                sprintf(buffer, "out4_%.0f.txt", R);
                 printf("Começando R = %04.0f\n", R);
+				it = clock();
                 rkf45_solve(X0, t0, tf, eps, h, F_chua, xt_chua, buffer);
+				t_exec = (double)(clock() - it)/CLOCKS_PER_SEC;
+				fprintf(out2, "%.0f  %.8e\n", R, t_exec);
             }
+
+			fclose(out2);
             break;
 
         default:
@@ -238,5 +247,6 @@ vector_t* x3t(double t, vector_t* res) {
 }
 
 vector_t* xt_chua(double t, vector_t* res) {
+	(void)t;
     return res;
 }
