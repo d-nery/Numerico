@@ -80,9 +80,9 @@ s2 = subplot(4,3,10);
 s3 = subplot(4,3,11);
 s4 = subplot(4,3,12);
 
-n = 2500;
+n = 2000;
 
-% for n = 1535:1549
+%for n = 1535:1549
     X = dlmread(['out4_' int2str(n) '.txt']);
     t   = X(:,1);
     Vc1 = X(:,2);
@@ -110,7 +110,7 @@ n = 2500;
     xlabel(s4, 'Tempo (s)');
     
     pause(0.1);
-% end
+%end
 
 %% Tempos de execuçcao
 T = dlmread('tempos.txt');

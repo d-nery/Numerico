@@ -16,7 +16,7 @@
 #include "rkf.h"
 #include "chua.h"
 
-#define DEBUG 0
+#define DEBUG 1																												
 
 // Coeficientes do RKF45
 static const double h_coeff[]    = { 0.0, 1.0/4.0, 3.0/8.0, 12.0/13.0, 1.0, 1.0/2.0 };
@@ -123,6 +123,10 @@ void rkf45_solve(vector_t* X0, double t0, double tf, double eps, double h,
             h = alpha * h;
             h = constrain(h, hmin, hmax);
             h = min(h, tf - t);
+
+			if (h <= hmin+1e-10)
+				break;
+
 #if DEBUG > 1
             printf("Alfa:   %.8e\n", alpha);
             printf("Novo h: %.8e\n\n", h);

@@ -31,7 +31,7 @@ vector_t* x2t(double t, vector_t* res);
 vector_t* x3t(double t, vector_t* res);
 vector_t* xt_chua(double t, vector_t* res);
 
-double R = 1600;
+double R = 1539.0;
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
         printf("    3: Multidimensional Variavel: Teste 3\n");
         printf("        Uso: %s 3 [m] (Padrao: 7)\n", argv[0]);
         printf("    4: Circuito de Chua\n");
-        printf("        Uso: %s 4\n\n", argv[0]);
+        printf("        Uso: %s 4 [R] (Padrao: 1539.0)\n\n", argv[0]);
         exit(0);
     }
 
