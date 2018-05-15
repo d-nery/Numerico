@@ -74,6 +74,21 @@ matrix_t* matrix_create_from_file(char* name) {
     return matrix;
 }
 
+matrix_t* matrix_copy(matrix_t* src, matrix_t* dst) {
+    if (src == MAT_NULL)
+        error(ERR_NULL, "matrix_copy");
+
+    if (dst != MAT_NULL)
+        matrix_free(dst);
+    dst = matrix_create(src->l, src->c);
+
+    for (int i = 0; i < src->l; i++)
+        for (int j = 0; j < src->c; j++)
+            matrix_set(dst, i, j, matrix_get(src, i, j));
+
+    return dst;
+}
+
 void matrix_set(matrix_t* matrix, int i, int j, double v) {
     if (matrix == MAT_NULL)
         error(ERR_NULL, "matrix_set");
