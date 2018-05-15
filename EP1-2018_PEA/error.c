@@ -21,6 +21,6 @@ void __err(err_t err, char* func, char* file, int line) {
     if (err >= len(err_list))
         err = ERR_UNKNOWN;
 
-    log_log(LOG_ERROR, file, line, "Funcao %s(): %s\n", func, err_list[err]);
+    log_log(LOG_FATAL, file, line, "Funcao %s(): %s\n", func, err_list[err]);
     exit(-1);
 }
