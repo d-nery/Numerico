@@ -1,3 +1,13 @@
+/**
+ * Escola Politécnica da USP
+ * MAP3121 - Metodos Numericos e Aplicacoes
+ * PEA3301 - Introdução aos Sistemas de Potencia
+ *
+ * Exercicio Programa 1
+ *
+ * Alunos: Daniel Nery Silva de Oliveira - 9349051
+ */
+
 #include <math.h>
 
 #include "newton.h"
@@ -7,7 +17,7 @@
 #include "matrix.h"
 #include "lu.h"
 
-#define EPS 1e-15
+#define EPS 1e-5
 
 vector_t* newton(func F, jacobian_func J, vector_t* x) {
     if (x == VEC_NULL)

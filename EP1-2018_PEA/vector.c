@@ -26,7 +26,7 @@ void print_vector(const vector_t* vector) {
         for (int i = 0; i < vector->size; i++) {
             if (vector_get(vector, i) >= 0)
                 printf(" ");
-            printf("%.3e ", vector_get(vector, i));
+            printf("%.20e ", vector_get(vector, i));
         }
         printf("\n");
     }

@@ -1,4 +1,15 @@
+/**
+ * Escola Politécnica da USP
+ * MAP3121 - Metodos Numericos e Aplicacoes
+ * PEA3301 - Introdução aos Sistemas de Potencia
+ *
+ * Exercicio Programa 1
+ *
+ * Alunos: Daniel Nery Silva de Oliveira - 9349051
+ */
+
 #include <math.h>
+#include <stdlib.h>
 
 #define M_EULER 2.71828
 
