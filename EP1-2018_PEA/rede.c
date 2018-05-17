@@ -355,12 +355,7 @@ void finaliza_rede(vector_t* x) {
     // Imprime tabela 1
     printf(" ____________________________________________________ \n");
     printf("|       |       Tensão Complexa        |             |\n");
-
-    unsigned char* t =" Barra |  Modulo (pu)  |  Angulo (g)  |   |V| (V)   ";
-    printf("|");
-    for (int i = 0; i < strlen(t); i++)
-        printf("\u0332%c", t[i]);          // Com underlines
-    printf("|\n");
+    printf("| Barra |  Modulo (pu)  |  Angulo (g)  |   |V| (V)   |");
 
     int ind;
     for (int i = 0; i < theta->size; i++) {

@@ -31,7 +31,7 @@ vector_t* F1(vector_t* x) {
     double x2 = vector_get(x, 1);
 
     vector_set(r, 0, 2*(x1 - 2));
-    vector_set(r, 1, 3*(x2 - 3));
+    vector_set(r, 1, 2*(x2 - 3));
 
     return r;
 }
@@ -49,11 +49,10 @@ matrix_t* JF1(vector_t* x) {
     matrix_set(J, 0, 1, 0);
 
     matrix_set(J, 1, 0, 0);
-    matrix_set(J, 1, 1, 3);
+    matrix_set(J, 1, 1, 2);
 
     return J;
 }
-
 
 vector_t* F2(vector_t* x) {
     if (x == VEC_NULL)
