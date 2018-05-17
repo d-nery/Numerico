@@ -128,13 +128,11 @@ void print_matrix(matrix_t* matrix) {
     if (log_get_level() <= LOG_INFO) {
         log_info("Matrix:");
         for (int i = 0; i < matrix->l; i++) {
-            printf("%25s", "");
+            printf("|  ");
             for (int j = 0; j < matrix->c; j++) {
-                if (matrix_get(matrix, i, j) >= 0)
-                    printf(" ");
-                printf("%.3e ", matrix_get(matrix, i, j));
+                printf("%+.3e  ", matrix_get(matrix, i, j));
             }
-            printf("\n");
+            printf("|\n");
         }
         printf("\n");
     }

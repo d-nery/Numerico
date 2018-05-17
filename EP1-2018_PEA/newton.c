@@ -17,7 +17,7 @@
 #include "matrix.h"
 #include "lu.h"
 
-#define EPS 1e-3
+#define EPS 1e-1
 
 vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
     if (x == VEC_NULL)
@@ -32,7 +32,7 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
     int it = 0;
 
     for (;;) {
-        // log_info("IT: %d", it+1);
+        log_info("IT: %d", it+1);
         Jx = J(x);
         Fx = F(x);
 
@@ -40,23 +40,19 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
 
         p = lu(Jx, p);
         c = lu_solve(Jx, c, Fx, p);
-        // log_info("C");
-        // print_vector(c);
 
         x = vector_add(x, c, x);
 
-        if (vector_norm(c) < EPS)
-            break;
-
-        // print_vector(x);
+        it++;
 
         vector_free(Fx);
         matrix_free(Jx);
 
-        it++;
+        if (vector_norm(c) < EPS)
+            break;
     }
 
-    log_trace("Newton terminado: %d iteracoes", it);
+    log_info("Newton terminado: %d iteracoes", it);
 
     return x;
 }

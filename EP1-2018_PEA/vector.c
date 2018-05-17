@@ -23,11 +23,7 @@ void print_vector(const vector_t* vector) {
     if (log_get_level() <= LOG_INFO) {
         log_info("Vector:");
         for (int i = 0; i < vector->size; i++) {
-            if (vector_get(vector, i) >= 0)
-                printf(" ");
-            printf("%.5e ", vector_get(vector, i));
-            if (vector->size > 9)
-                printf("\n");
+            printf("[ %+.5e ]\n", vector_get(vector, i));
         }
         printf("\n");
     }

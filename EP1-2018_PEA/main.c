@@ -33,41 +33,6 @@ int main(int argc, char* argv[]) {
     vector_t* x = VEC_NULL;
 
     switch (argv[1][0]) {
-        case '0':
-        {
-            log_info("Teste F0:");
-
-            matrix_t* A = matrix_create(3, 3);
-
-            matrix_set(A, 0, 0, 1);
-            matrix_set(A, 0, 1, -2);
-            matrix_set(A, 0, 2, 3);
-
-            matrix_set(A, 1, 0, 2);
-            matrix_set(A, 1, 1, 1);
-            matrix_set(A, 1, 2, 1);
-
-            matrix_set(A, 2, 0, -3);
-            matrix_set(A, 2, 1, 2);
-            matrix_set(A, 2, 2, -2);
-
-            vector_t* b = vector_create(3);
-
-            vector_set(b, 0, 7);
-            vector_set(b, 1, 4);
-            vector_set(b, 2, -10);
-
-            vector_t* p = VEC_NULL;
-
-            p = lu(A, p);
-            print_matrix(A);
-
-            x = lu_solve(A, x, b, p);
-            print_vector(x);
-
-            break;
-        }
-
         case '1':
         {
             log_info("Teste F1:");
@@ -128,8 +93,8 @@ int main(int argc, char* argv[]) {
 
             x = prepara_rede(n);
             newton(F_rede, J_rede, x);
-            // print_vector(x);as
             log_info("Terminado!");
+            finaliza_rede(x);
 
             vector_free(x);
 

@@ -7,7 +7,7 @@
 # Alunos: Daniel Nery Silva de Oliveira - 9349051
 
 COMPILE  = gcc -Wall -Wextra -std=c11 -fshort-enums
-OPTIMIZE = -O3 # -fopenmp
+OPTIMIZE = -O3 #-fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 
@@ -20,7 +20,7 @@ all: main
 	@echo
 
 main: $(OBJECTS)
-	$(COMPILE) -o main $(OBJECTS) $(LD_FLAGS)
+	$(COMPILE) -o main $(OBJECTS) $(LD_FLAGS) $(OPTIMIZE)
 	@echo
 
 clean:

@@ -2,12 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #include "rede.h"
 #include "matrix.h"
 #include "vector.h"
 #include "log.h"
 #include "error.h"
+
+#ifndef M_PI
+#define M_PI 3.141592653589793
+#endif
 
 static matrix_t* Y[2] = { MAT_NULL, MAT_NULL };
 
@@ -19,7 +24,10 @@ static vector_t* Vs = VEC_NULL;
 
 static vector_t* tipos = VEC_NULL;
 static vector_t* Pesp  = VEC_NULL;
+static vector_t* map = VEC_NULL;
+
 static int n_barras[3] = { 0 };
+static double V_ref;
 
 vector_t* prepara_rede(const int n) {
     FILE* fp;
@@ -59,7 +67,7 @@ vector_t* prepara_rede(const int n) {
     Vs    = vector_create(size);
     Pesp  = vector_create(size);
 
-    vector_t* map = vector_create(size);
+    map = vector_create(size);
 
     int ind, tipo;
     double c3, c4, c5;
@@ -104,6 +112,7 @@ vector_t* prepara_rede(const int n) {
 
             case 2: // Swing
                 vector_set(map, i, pos_sw);
+                V_ref = c4;
                 vector_set(Vs, pos_sw, c4); // V
                 vector_set(theta, pos_sw++, c5); // theta
                 break;
@@ -114,19 +123,19 @@ vector_t* prepara_rede(const int n) {
 
     switch (n) {
         case 1:
-            name = "Redes/1_Stevenson/1_Stevenson_YNodal.txt", "r";
+            name = "Redes/1_Stevenson/1_Stevenson_Ynodal.txt", "r";
             break;
 
         case 2:
-            name = "Redes/2_Reticulada/2_Reticulada_YNodal.txt", "r";
+            name = "Redes/2_Reticulada/2_Reticulada_Ynodal.txt", "r";
             break;
 
         case 3:
-            name = "Redes/3_Distribuicao_Primaria/3_Distribuicao_Primaria_YNodal.txt", "r";
+            name = "Redes/3_Distribuicao_Primaria/3_Distribuicao_Primaria_Ynodal.txt", "r";
             break;
 
         case 4:
-            name = "Redes/4_Distribuicao_Pri_Sec/4_Distribuicao_Primaria_Secundaria_YNodal.txt", "r";
+            name = "Redes/4_Distribuicao_Pri_Sec/4_Distribuicao_Primaria_Secundaria_Ynodal.txt", "r";
             break;
 
         default:
@@ -151,10 +160,6 @@ vector_t* prepara_rede(const int n) {
         matrix_set(Y[1], vector_get(map, j), vector_get(map, k), c4);
     }
 
-    // print_matrix(Y[0]);
-    // print_matrix(Y[1]);
-
-    vector_free(map);
     fclose(fp);
 
     return x;
@@ -180,36 +185,33 @@ vector_t* F_rede(vector_t* x) {
     for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
         sum = 0;
         for (int j = 0; j < Y[0]->l; j++) {
+            if (i == j) continue;
+
             theta_kj = vector_get(theta, j) - vector_get(theta, i);
             sum += vector_get(Vs, j) *
                 (matrix_get(Y[0], i, j) * cos(theta_kj) -
                  matrix_get(Y[1], i, j) * sin(theta_kj));
         }
 
-        vector_set(F, i, vector_get(Vs, i) * sum - vector_get(Pesp, i));
+        vector_set(F, i, pow(vector_get(Vs, i), 2)*matrix_get(Y[0], i, i) + vector_get(Vs, i) * sum - vector_get(Pesp, i));
     }
 
     // fqs
     for (int i = 0; i < n_barras[0]; i++) {
         sum = 0;
         for (int j = 0; j < Y[0]->l; j++) {
+            if (i == j) continue;
+
             theta_kj = vector_get(theta, j) - vector_get(theta, i);
             sum += vector_get(Vs, j) *
                 (matrix_get(Y[0], i, j) * sin(theta_kj) +
                 matrix_get(Y[1], i, j) * cos(theta_kj));
         }
 
-        vector_set(F, n_barras[0] + n_barras[1] + i, -vector_get(Vs, i) * sum);
+        vector_set(F, n_barras[0] + n_barras[1] + i, -pow(vector_get(Vs, i), 2)*matrix_get(Y[1], i, i)-vector_get(Vs, i) * sum);
     }
 
-    // log_info("F");
     // print_vector(F);
-
-    // log_info("Vs");
-    // print_vector(Vs);
-    // log_info("theta");
-    // print_vector(theta);
-
 
     return F;
 }
@@ -330,7 +332,43 @@ matrix_t* J_rede(vector_t* x) {
         }
     }
 
-    // log_info("J");
     // print_matrix(J);
+
     return J;
+}
+
+void finaliza_rede(vector_t* x) {
+    if (x == VEC_NULL)
+        error(ERR_NULL, "finaliza_rede");
+
+    // Atualiza Vs e thetas
+    for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
+        vector_set(theta, i, vector_get(x, i));
+        if (i < n_barras[0])
+            vector_set(Vs, i, vector_get(x, n_barras[0] + n_barras[1] + i));
+    }
+
+    // Radiano -> Grau
+    for (int i = 0; i < theta->size; i++)
+        vector_set(theta, i, vector_get(theta, i)*180/M_PI);
+
+    // Imprime tabela 1
+    printf(" ____________________________________________________ \n");
+    printf("|       |       Tensão Complexa        |             |\n");
+
+    unsigned char* t =" Barra |  Modulo (pu)  |  Angulo (g)  |   |V| (V)   ";
+    printf("|");
+    for (int i = 0; i < strlen(t); i++)
+        printf("\u0332%c", t[i]);          // Com underlines
+    printf("|\n");
+
+    int ind;
+    for (int i = 0; i < theta->size; i++) {
+        ind = vector_get(map, i);
+        printf("| %5d |    %8.6f   |   %s%6.4f    |  %10.3f |\n", i, vector_get(Vs, ind)/V_ref, vector_get(theta, ind) < 0 ? "" : " ", vector_get(theta, ind), vector_get(Vs, ind));
+    }
+    printf(" ");
+    for (int i = 0; i < 52; i++)
+        printf("\u203E");
+    printf(" \n");
 }
