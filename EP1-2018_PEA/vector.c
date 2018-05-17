@@ -22,11 +22,12 @@ void print_vector(const vector_t* vector) {
 
     if (log_get_level() <= LOG_INFO) {
         log_info("Vector:");
-        printf("%25s", "");
         for (int i = 0; i < vector->size; i++) {
             if (vector_get(vector, i) >= 0)
                 printf(" ");
-            printf("%.20e ", vector_get(vector, i));
+            printf("%.5e ", vector_get(vector, i));
+            if (vector->size > 9)
+                printf("\n");
         }
         printf("\n");
     }
@@ -52,7 +53,7 @@ vector_t* vector_create(const int size) {
 }
 
 vector_t* vector_create_from_file(const char* name, const int lines) {
-    vector_t* vector;
+    vector_t* vector = VEC_NULL;
     FILE* fp = fopen(name, "r");
 
     if (fp == NULL)

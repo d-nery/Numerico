@@ -16,9 +16,14 @@
 #include "testes.h"
 #include "error.h"
 
+/**
+ * Testes Iniciais propostos ao final do enunciado
+ * FX e JFX são passadas para o metodo de Newton
+ */
+
 vector_t* F1(vector_t* x) {
     if (x == VEC_NULL)
-        error(ERR_NULL, "F2");
+        error(ERR_NULL, "F1");
 
     vector_t* r = vector_create(x->size);
 
@@ -33,7 +38,7 @@ vector_t* F1(vector_t* x) {
 
 matrix_t* JF1(vector_t* x) {
     if (x == VEC_NULL)
-        error(ERR_NULL, "JF2");
+        error(ERR_NULL, "JF1");
 
     matrix_t* J = matrix_create(x->size, x->size);
 

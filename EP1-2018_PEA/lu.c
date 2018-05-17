@@ -32,19 +32,13 @@ vector_t* lu(matrix_t* A, vector_t* p) {
     double sum = 0;
 
     for (int k = 0; k < n; k++) {
-        // log_info("K = %d", k);
         // Passo 1
         for (int i = k; i < n; i++) {
-            // log_info("I = %d", i);
-
             sum = 0;
             for (int j = 0; j < k; j++) {
                 sum += matrix_get(A, i, j) * matrix_get(A, j, k);
             }
-            // log_trace("sum -> %f", sum);
             matrix_set(A, i, k, matrix_get(A, i, k) - sum);
-
-            // print_matrix(A);
         }
 
         // Determinar l
@@ -57,13 +51,9 @@ vector_t* lu(matrix_t* A, vector_t* p) {
             _old_max = _max;
         }
 
-        // print_vector(p);
-
         // Trocar linhas
         if (k != (int)vector_get(p, k)) {
             matrix_swap_lines(A, k, (int)vector_get(p, k));
-            // log_info("Linhas trocadas! %d <-> %d", k, (int)vector_get(p, k));
-            // print_matrix(A);
         }
 
         // Ultimo passo
@@ -84,17 +74,14 @@ vector_t* lu_solve(matrix_t* A, vector_t* x, vector_t* b, vector_t* p) {
     if (A == MAT_NULL || b == VEC_NULL || p == VEC_NULL)
         error(ERR_NULL, "lu_solve");
 
-    // log_trace("LU Solve begin");
-
     if (x == VEC_NULL) {
-        // log_trace("Criando x...");
         x = vector_create(b->size);
     }
 
     double temp;
 
     // Permuta b
-    for (int i = p->size-1; i >= 0; i--) {
+    for (int i = 0; i < p->size; i++) {
         int ind = (int)vector_get(p, i);
         if (i != ind) {
             temp = vector_get(b, i);

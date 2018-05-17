@@ -14,9 +14,19 @@
 #include "vector.h"
 #include "matrix.h"
 
-typedef vector_t* (*func)(vector_t*);
-typedef matrix_t* (*jacobian_func)(vector_t*);
-
-vector_t* newton(func F, jacobian_func J, vector_t* x);
+/**
+ * newton(vector_t* ()(vector_t*), matrix_t* ()(vector_t*), vector_t*)
+ * Acha raiz das funções de F(x) pelo método de Newton
+ * Utiliza decomposição LU para resolver sistemas Jx = -F multiplas vezes
+ *
+ * Parametros:
+ *  F    -> Função F(x)
+ *  J    -> Função da matriz jacabiana J(x)
+ *  x    -> Vetor com chutes iniciais
+ *
+ * Retorna
+ *  x -> Modifica vetor dos valores iniciais com o resultado e o retorna
+ */
+vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x);
 
 #endif

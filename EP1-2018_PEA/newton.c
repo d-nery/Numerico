@@ -17,9 +17,9 @@
 #include "matrix.h"
 #include "lu.h"
 
-#define EPS 1e-5
+#define EPS 1e-3
 
-vector_t* newton(func F, jacobian_func J, vector_t* x) {
+vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
     if (x == VEC_NULL)
         error(ERR_NULL, "newton_solve");
 
@@ -32,18 +32,26 @@ vector_t* newton(func F, jacobian_func J, vector_t* x) {
     int it = 0;
 
     for (;;) {
-        Fx = F(x);
+        // log_info("IT: %d", it+1);
         Jx = J(x);
+        Fx = F(x);
 
         Fx = vector_mult_scalar(-1, Fx, Fx);
 
         p = lu(Jx, p);
         c = lu_solve(Jx, c, Fx, p);
+        // log_info("C");
+        // print_vector(c);
 
         x = vector_add(x, c, x);
 
         if (vector_norm(c) < EPS)
             break;
+
+        // print_vector(x);
+
+        vector_free(Fx);
+        matrix_free(Jx);
 
         it++;
     }
