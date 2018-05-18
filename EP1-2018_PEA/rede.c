@@ -1,3 +1,13 @@
+/**
+ * Escola Politécnica da USP
+ * MAP3121 - Metodos Numericos e Aplicacoes
+ * PEA3301 - Introdução aos Sistemas de Potencia
+ *
+ * Exercicio Programa 1
+ *
+ * Alunos: Daniel Nery Silva de Oliveira - 9349051
+ */
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,78 +24,90 @@
 #define M_PI 3.141592653589793
 #endif
 
+// G B
 static matrix_t* Y[2] = { MAT_NULL, MAT_NULL };
 
-// [thetaPQ thetaPV thetaSwing]
-static vector_t* theta = VEC_NULL;
+// [thetaPQ ... thetaPV ... thetaSwing]
+static vector_t* thetas = VEC_NULL;
 
-// [VPQ VPV VSwing]
+// [VPQ ... VPV ... VSwing]
 static vector_t* Vs = VEC_NULL;
 
-static vector_t* tipos = VEC_NULL;
+// [PespPQ ... PespPV ... PespSwing]
 static vector_t* Pesp  = VEC_NULL;
+
+// Vetor que mapeia posições originais das barras para
+// a ordem [PQ PV Swing]
 static vector_t* map = VEC_NULL;
 
+// Numero total de barras de cada tipo
+// 0 -> PQ   1 -> PV    2 -> SW
 static int n_barras[3] = { 0 };
+
+// Tensao de referencia para calculo do pu
+// Vem da barra Swing
 static double V_ref;
 
 vector_t* prepara_rede(const int n) {
     FILE* fp;
 
-    char* name;
+    char* dados_barras = "";
+    char* dados_ynodal = "";
 
     switch (n) {
         case 1:
-            name = "Redes/1_Stevenson/1_Stevenson_DadosBarras.txt";
+            dados_barras = "Redes/1_Stevenson/1_Stevenson_DadosBarras.txt";
+            dados_ynodal = "Redes/1_Stevenson/1_Stevenson_Ynodal.txt";
             break;
 
         case 2:
-            name = "Redes/2_Reticulada/2_Reticulada_DadosBarras.txt";
+            dados_barras = "Redes/2_Reticulada/2_Reticulada_DadosBarras.txt";
+            dados_ynodal = "Redes/2_Reticulada/2_Reticulada_Ynodal.txt";
             break;
 
         case 3:
-            name = "Redes/3_Distribuicao_Primaria/3_Distribuicao_Primaria_DadosBarras.txt";
+            dados_barras = "Redes/3_Distribuicao_Primaria/3_Distribuicao_Primaria_DadosBarras.txt";
+            dados_ynodal = "Redes/3_Distribuicao_Primaria/3_Distribuicao_Primaria_Ynodal.txt";
             break;
 
         case 4:
-            name = "Redes/4_Distribuicao_Pri_Sec/4_Distribuicao_Primaria_Secundaria_DadosBarras.txt";
+            dados_barras = "Redes/4_Distribuicao_Pri_Sec/4_Distribuicao_Primaria_Secundaria_DadosBarras.txt";
+            dados_ynodal = "Redes/4_Distribuicao_Pri_Sec/4_Distribuicao_Primaria_Secundaria_Ynodal.txt";
             break;
 
         default:
             error(ERR_OOB, "prepara_rede");
     }
 
-    if ((fp = fopen(name, "r")) == NULL)
+    if ((fp = fopen(dados_barras, "r")) == NULL)
         error(ERR_OPEN_FILE, "prepara_rede");
 
-    int size;
-    fscanf(fp, "%d", &size);
+    int total_barras;
+    if (fscanf(fp, "%d", &total_barras) != 1)
+        error(ERR_READ_FILE, "prepara_rede");
     int pos_file = ftell(fp);
 
-    tipos = vector_create(size);
-    theta = vector_create(size);
-    Vs    = vector_create(size);
-    Pesp  = vector_create(size);
-
-    map = vector_create(size);
+    thetas = vector_create(total_barras);
+    Vs     = vector_create(total_barras);
+    Pesp   = vector_create(total_barras);
+    map    = vector_create(total_barras);
 
     int ind, tipo;
     double c3, c4, c5;
 
     // Ve quantidade de cada barra
-    for (int i = 0; i < tipos->size; i++) {
+    for (int i = 0; i < total_barras; i++) {
         if (fscanf(fp, "%d %d %lf %lf %lf", &ind, &tipo, &c3, &c4, &c5) != 5)
             error(ERR_READ_FILE, "prepara_rede");
 
         n_barras[tipo]++;
-        vector_set(tipos, ind, tipo);
         vector_set(map, i, ind);
     }
 
     fseek(fp, pos_file, SEEK_SET);
 
     // [thetaPQ thetaPV VPQ]
-    vector_t* x = vector_create(2*n_barras[0] + n_barras[1]);
+    vector_t* x0 = vector_create(2*n_barras[0] + n_barras[1]);
 
     // Posicoes nos vetores
     int pos_pq = 0;
@@ -93,7 +115,7 @@ vector_t* prepara_rede(const int n) {
     int pos_sw = n_barras[0] + n_barras[1];
     int pos_x = n_barras[0] + n_barras[1];
 
-    for (int i = 0; i < tipos->size; i++) {
+    for (int i = 0; i < total_barras; i++) {
         if (fscanf(fp, "%d %d %lf %lf %lf", &ind, &tipo, &c3, &c4, &c5) != 5)
             error(ERR_READ_FILE, "prepara_rede");
 
@@ -101,7 +123,7 @@ vector_t* prepara_rede(const int n) {
             case 0: // PQ
                 vector_set(map, i, pos_pq);
                 vector_set(Vs, pos_pq++, c3); // V
-                vector_set(x,  pos_x++, c3); // V
+                vector_set(x0,  pos_x++, c3); // V
                 break;
 
             case 1: // PV
@@ -114,42 +136,22 @@ vector_t* prepara_rede(const int n) {
                 vector_set(map, i, pos_sw);
                 V_ref = c4;
                 vector_set(Vs, pos_sw, c4); // V
-                vector_set(theta, pos_sw++, c5); // theta
+                vector_set(thetas, pos_sw++, c5*M_PI/180.0); // thetas em rad
                 break;
         }
     }
 
     fclose(fp);
 
-    switch (n) {
-        case 1:
-            name = "Redes/1_Stevenson/1_Stevenson_Ynodal.txt", "r";
-            break;
-
-        case 2:
-            name = "Redes/2_Reticulada/2_Reticulada_Ynodal.txt", "r";
-            break;
-
-        case 3:
-            name = "Redes/3_Distribuicao_Primaria/3_Distribuicao_Primaria_Ynodal.txt", "r";
-            break;
-
-        case 4:
-            name = "Redes/4_Distribuicao_Pri_Sec/4_Distribuicao_Primaria_Secundaria_Ynodal.txt", "r";
-            break;
-
-        default:
-            error(ERR_OOB, "prepara_rede");
-    }
-
-    if ((fp = fopen(name, "r")) == NULL)
+    if ((fp = fopen(dados_ynodal, "r")) == NULL)
         error(ERR_OPEN_FILE, "prepara_rede");
 
-    Y[0] = matrix_create(tipos->size, tipos->size);
-    Y[1] = matrix_create(tipos->size, tipos->size);
+    Y[0] = matrix_create(total_barras, total_barras);
+    Y[1] = matrix_create(total_barras, total_barras);
 
     int lines;
-    fscanf(fp, "%d", &lines);
+    if (fscanf(fp, "%d", &lines) != 1)
+        error(ERR_READ_FILE, "prepara_rede");
 
     int j, k;
     for (int i = 0; i < lines; i++) {
@@ -162,7 +164,7 @@ vector_t* prepara_rede(const int n) {
 
     fclose(fp);
 
-    return x;
+    return x0;
 }
 
 vector_t* F_rede(vector_t* x) {
@@ -173,7 +175,7 @@ vector_t* F_rede(vector_t* x) {
 
     // Atualiza Vs e thetas
     for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
-        vector_set(theta, i, vector_get(x, i));
+        vector_set(thetas, i, vector_get(x, i));
         if (i < n_barras[0])
             vector_set(Vs, i, vector_get(x, n_barras[0] + n_barras[1] + i));
     }
@@ -187,7 +189,7 @@ vector_t* F_rede(vector_t* x) {
         for (int j = 0; j < Y[0]->l; j++) {
             if (i == j) continue;
 
-            theta_kj = vector_get(theta, j) - vector_get(theta, i);
+            theta_kj = vector_get(thetas, j) - vector_get(thetas, i);
             sum += vector_get(Vs, j) *
                 (matrix_get(Y[0], i, j) * cos(theta_kj) -
                  matrix_get(Y[1], i, j) * sin(theta_kj));
@@ -202,7 +204,7 @@ vector_t* F_rede(vector_t* x) {
         for (int j = 0; j < Y[0]->l; j++) {
             if (i == j) continue;
 
-            theta_kj = vector_get(theta, j) - vector_get(theta, i);
+            theta_kj = vector_get(thetas, j) - vector_get(thetas, i);
             sum += vector_get(Vs, j) *
                 (matrix_get(Y[0], i, j) * sin(theta_kj) +
                 matrix_get(Y[1], i, j) * cos(theta_kj));
@@ -222,7 +224,7 @@ matrix_t* J_rede(vector_t* x) {
 
     // Atualiza Vs e thetas
     for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
-        vector_set(theta, i, vector_get(x, i));
+        vector_set(thetas, i, vector_get(x, i));
         if (i < n_barras[0])
             vector_set(Vs, i, vector_get(x, n_barras[0] + n_barras[1] + i));
     }
@@ -242,7 +244,7 @@ matrix_t* J_rede(vector_t* x) {
                 for (int k = 0; k < Y[0]->l; k++) {
                     if (k == i) continue;
 
-                    theta_kj = vector_get(theta, k) - vector_get(theta, i);
+                    theta_kj = vector_get(thetas, k) - vector_get(thetas, i);
                     sum += vector_get(Vs, k) *
                         (matrix_get(Y[0], i, k) * sin(theta_kj) +
                         matrix_get(Y[1], i, k) * cos(theta_kj));
@@ -250,7 +252,7 @@ matrix_t* J_rede(vector_t* x) {
 
                 matrix_set(J, i, j, sum * vector_get(Vs, i));
             } else {
-                theta_kj = vector_get(theta, j) - vector_get(theta, i);
+                theta_kj = vector_get(thetas, j) - vector_get(thetas, i);
                 matrix_set(J, i, j,
                     -vector_get(Vs, i) * vector_get(Vs, j) *
                     (matrix_get(Y[0], i, j) * sin(theta_kj) +
@@ -266,7 +268,7 @@ matrix_t* J_rede(vector_t* x) {
                 for (int k = 0; k < Y[0]->l; k++) {
                     if (k == i) continue;
 
-                    theta_kj = vector_get(theta, k) - vector_get(theta, i);
+                    theta_kj = vector_get(thetas, k) - vector_get(thetas, i);
                     sum += vector_get(Vs, k) *
                         (matrix_get(Y[0], i, k) * cos(theta_kj) -
                          matrix_get(Y[1], i, k) * sin(theta_kj));
@@ -274,7 +276,7 @@ matrix_t* J_rede(vector_t* x) {
 
                 matrix_set(J, i, j, sum + 2 * vector_get(Vs, i) * matrix_get(Y[0], i, i));
             } else {
-                theta_kj = vector_get(theta, j - (n_barras[0] + n_barras[1])) - vector_get(theta, i);
+                theta_kj = vector_get(thetas, j - (n_barras[0] + n_barras[1])) - vector_get(thetas, i);
                 matrix_set(J, i, j, vector_get(Vs, i) *
                     (matrix_get(Y[0], i, j - (n_barras[0] + n_barras[1])) * cos(theta_kj) -
                      matrix_get(Y[1], i, j - (n_barras[0] + n_barras[1])) * sin(theta_kj)));
@@ -292,7 +294,7 @@ matrix_t* J_rede(vector_t* x) {
                 for (int k = 0; k < Y[0]->l; k++) {
                     if (k == i) continue;
 
-                    theta_kj = vector_get(theta, k) - vector_get(theta, i);
+                    theta_kj = vector_get(thetas, k) - vector_get(thetas, i);
                     sum += vector_get(Vs, k) *
                         (matrix_get(Y[0], i, k) * cos(theta_kj) -
                         matrix_get(Y[1], i, k) * sin(theta_kj));
@@ -300,7 +302,7 @@ matrix_t* J_rede(vector_t* x) {
 
                 matrix_set(J, i + n_barras[0] + n_barras[1], j, sum * vector_get(Vs, i));
             } else {
-                theta_kj = vector_get(theta, j) - vector_get(theta, i);
+                theta_kj = vector_get(thetas, j) - vector_get(thetas, i);
                 matrix_set(J, i + n_barras[0] + n_barras[1], j,
                     -vector_get(Vs, i) * vector_get(Vs, j) *
                     (matrix_get(Y[0], i, j) * cos(theta_kj) -
@@ -316,7 +318,7 @@ matrix_t* J_rede(vector_t* x) {
                 for (int k = 0; k < Y[0]->l; k++) {
                     if (k == i) continue;
 
-                    theta_kj = vector_get(theta, k) - vector_get(theta, i);
+                    theta_kj = vector_get(thetas, k) - vector_get(thetas, i);
                     sum += vector_get(Vs, k) *
                         (matrix_get(Y[0], i, k) * sin(theta_kj) +
                          matrix_get(Y[1], i, k) * cos(theta_kj));
@@ -324,7 +326,7 @@ matrix_t* J_rede(vector_t* x) {
 
                 matrix_set(J, i + n_barras[0] + n_barras[1], j, -sum - 2 * vector_get(Vs, i) * matrix_get(Y[1], i, i));
             } else {
-                theta_kj = vector_get(theta, j - (n_barras[0] + n_barras[1])) - vector_get(theta, i);
+                theta_kj = vector_get(thetas, j - (n_barras[0] + n_barras[1])) - vector_get(thetas, i);
                 matrix_set(J, i + n_barras[0] + n_barras[1], j, -vector_get(Vs, i) *
                     (matrix_get(Y[0], i, j - (n_barras[0] + n_barras[1])) * sin(theta_kj) +
                      matrix_get(Y[1], i, j - (n_barras[0] + n_barras[1])) * cos(theta_kj)));
@@ -343,24 +345,24 @@ void finaliza_rede(vector_t* x) {
 
     // Atualiza Vs e thetas
     for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
-        vector_set(theta, i, vector_get(x, i));
+        vector_set(thetas, i, vector_get(x, i));
         if (i < n_barras[0])
             vector_set(Vs, i, vector_get(x, n_barras[0] + n_barras[1] + i));
     }
 
     // Radiano -> Grau
-    for (int i = 0; i < theta->size; i++)
-        vector_set(theta, i, vector_get(theta, i)*180/M_PI);
+    for (int i = 0; i < thetas->size; i++)
+        vector_set(thetas, i, vector_get(thetas, i)*180.0/M_PI);
 
     // Imprime tabela 1
     printf(" ____________________________________________________ \n");
     printf("|       |       Tensão Complexa        |             |\n");
-    printf("| Barra |  Modulo (pu)  |  Angulo (g)  |   |V| (V)   |");
+    printf("| Barra |  Modulo (pu)  |  Angulo (g)  |   |V| (V)   |\n");
 
     int ind;
-    for (int i = 0; i < theta->size; i++) {
+    for (int i = 0; i < thetas->size; i++) {
         ind = vector_get(map, i);
-        printf("| %5d |    %8.6f   |   %s%6.4f    |  %10.3f |\n", i, vector_get(Vs, ind)/V_ref, vector_get(theta, ind) < 0 ? "" : " ", vector_get(theta, ind), vector_get(Vs, ind));
+        printf("| %5d |    %8.6f   |   %s%6.4f    |  %10.3f |\n", i, vector_get(Vs, ind)/V_ref, vector_get(thetas, ind) < 0 ? "" : " ", vector_get(thetas, ind), vector_get(Vs, ind));
     }
     printf(" ");
     for (int i = 0; i < 52; i++)

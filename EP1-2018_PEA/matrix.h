@@ -11,6 +11,11 @@
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 
+/**
+ * Funções utilitarias para criação e manipulacao
+ * de matrizes
+ */
+
 #define MAT_NULL (matrix_t *)NULL
 
 typedef struct {
@@ -20,7 +25,6 @@ typedef struct {
 
 matrix_t* matrix_create(int m, int n);
 matrix_t* matrix_create_identity(int size);
-matrix_t* matrix_create_from_file(char* name);
 matrix_t* matrix_copy(matrix_t* src, matrix_t* dst);
 
 void print_matrix(matrix_t* matrix);

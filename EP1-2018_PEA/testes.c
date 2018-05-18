@@ -11,15 +11,13 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define M_EULER 2.71828
-
 #include "testes.h"
 #include "error.h"
 
-/**
- * Testes Iniciais propostos ao final do enunciado
- * FX e JFX são passadas para o metodo de Newton
- */
+#define M_EULER 2.71828
+
+// Evitar warning, mas manter o padrao
+#define UNUSED __attribute__((unused))
 
 vector_t* F1(vector_t* x) {
     if (x == VEC_NULL)
@@ -42,8 +40,8 @@ matrix_t* JF1(vector_t* x) {
 
     matrix_t* J = matrix_create(x->size, x->size);
 
-    double x1 = vector_get(x, 0);
-    double x2 = vector_get(x, 1);
+    UNUSED double x1 = vector_get(x, 0);
+    UNUSED double x2 = vector_get(x, 1);
 
     matrix_set(J, 0, 0, 2);
     matrix_set(J, 0, 1, 0);

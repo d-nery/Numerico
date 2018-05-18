@@ -13,6 +13,11 @@
 
 #include "matrix.h"
 
+/**
+ * Funções utilitarias para criação e manipulacao
+ * de vetores
+ */
+
 #define VEC_NULL (vector_t *)NULL
 
 #define sgn(v) ((v) < 0 ? -1 : 1)
@@ -23,7 +28,6 @@ typedef struct {
 } vector_t;
 
 vector_t* vector_create(const int size);
-vector_t* vector_create_from_file(const char* name, const int lines);
 vector_t* vector_copy(const vector_t* v, vector_t* r);
 
 void print_vector(const vector_t* vector);
@@ -36,7 +40,6 @@ double vector_norm(const vector_t* vector);
 double vector_multiply(const vector_t* u, const vector_t* v);
 
 vector_t* vector_add(const vector_t* u, const vector_t* v, vector_t* r);
-
 vector_t* vector_subtract(const vector_t* u, const vector_t* v, vector_t* r);
 vector_t* vector_mult_scalar(const double n, const vector_t* u, vector_t* r);
 vector_t* vector_mult_matrix(const matrix_t* A, const vector_t* v, vector_t* r);

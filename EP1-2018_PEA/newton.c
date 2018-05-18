@@ -17,7 +17,7 @@
 #include "matrix.h"
 #include "lu.h"
 
-#define EPS 1e-1
+#define EPS 1e-3
 
 vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
     if (x == VEC_NULL)

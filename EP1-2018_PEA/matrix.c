@@ -48,32 +48,6 @@ matrix_t* matrix_create_identity(int size) {
     return matrix;
 }
 
-matrix_t* matrix_create_from_file(char* name) {
-    matrix_t* matrix;
-    FILE* fp = fopen(name, "r");
-    int m = 0, n = 0, lines;
-
-    if (fp == NULL)
-        error(ERR_OPEN_FILE, "matrix_create_from_file");
-
-    if (fscanf(fp, "%d %d %d", &m, &n, &lines) < 3)
-        error(ERR_READ_FILE, "matrix_create_from_file");
-
-    matrix = matrix_create(m, n);
-
-    int l, c;
-    double val;
-    for (int i = 0; i < lines; i++) {
-        if (fscanf(fp, "%d %d %lf", &l, &c, &val) < 3)
-            error(ERR_READ_FILE, "matrix_create_from_file");
-
-        matrix_set(matrix, l, c, val);
-    }
-
-    fclose(fp);
-    return matrix;
-}
-
 matrix_t* matrix_copy(matrix_t* src, matrix_t* dst) {
     if (src == MAT_NULL)
         error(ERR_NULL, "matrix_copy");

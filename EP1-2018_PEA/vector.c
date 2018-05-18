@@ -48,27 +48,6 @@ vector_t* vector_create(const int size) {
     return vector;
 }
 
-vector_t* vector_create_from_file(const char* name, const int lines) {
-    vector_t* vector = VEC_NULL;
-    FILE* fp = fopen(name, "r");
-
-    if (fp == NULL)
-        error(ERR_OPEN_FILE, "vector_create_from_file");
-
-    vector = vector_create(lines);
-
-    double val;
-    for (int i = 0; i < lines; i++) {
-        if (fscanf(fp, "%lf", &val) != 1)
-            error(ERR_READ_FILE, "vector_create_from_file");
-
-        vector->data[i] = val;
-    }
-
-    fclose(fp);
-    return vector;
-}
-
 vector_t* vector_copy(const vector_t* v, vector_t* r) {
     if (v == VEC_NULL)
         error(ERR_NULL, "vector_abs");
