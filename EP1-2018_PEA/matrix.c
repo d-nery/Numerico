@@ -194,4 +194,5 @@ void matrix_free(matrix_t* matrix) {
     matrix->c = 0;
     free(matrix->data);
     free(matrix);
+    matrix = MAT_NULL;
 }

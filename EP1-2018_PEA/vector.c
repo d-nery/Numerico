@@ -175,6 +175,7 @@ void vector_free(vector_t* vector) {
     vector->size = 0;
     free(vector->data);
     free(vector);
+    vector = VEC_NULL;
 }
 
 void output_vector(const vector_t* vector, const char* filename) {

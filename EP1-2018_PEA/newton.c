@@ -32,7 +32,7 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
     int it = 0;
 
     for (;;) {
-        log_info("IT: %d", it+1);
+        log_trace("iteração %d", it+1);
         Jx = J(x);
         Fx = F(x);
 

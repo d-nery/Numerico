@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     switch (argv[1][0]) {
         case '1':
         {
-            log_info("Teste F1:");
+            log_info("Teste Inicial 1:");
 
             x = vector_create(2);
 
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 
         case '2':
         {
-            log_info("Teste F2:");
+            log_info("Teste Inicial 2:");
 
             x = vector_create(4);
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 
         case '3':
         {
-            log_info("Teste F3:");
+            log_info("Teste Inicial 3:");
 
             int n = atoi(argv[2]);
 
@@ -97,9 +97,9 @@ int main(int argc, char* argv[]) {
 
         case '4':
         {
-            log_info("Teste F4:");
-
             int n = atoi(argv[2]);
+
+            log_info("Rede %d", n);
 
             x = prepara_rede(n);
             newton(F_rede, J_rede, x);
