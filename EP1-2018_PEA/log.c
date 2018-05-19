@@ -66,7 +66,6 @@ void log_set_udata(void *udata) {
   L.udata = udata;
 }
 
-
 void log_set_lock(log_LockFn fn) {
   L.lock = fn;
 }

@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <omp.h>
 
 #include "log.h"
 #include "lu.h"
@@ -18,6 +19,8 @@
 #include "error.h"
 
 vector_t* lu(matrix_t* A, vector_t* p) {
+    log_trace("Iniciando decomposição LU");
+
     if (A == MAT_NULL)
         error(ERR_NULL, "lu");
 
@@ -67,10 +70,14 @@ vector_t* lu(matrix_t* A, vector_t* p) {
         }
     }
 
+    log_trace("Concluido");
+
     return p;
 }
 
 vector_t* lu_solve(matrix_t* A, vector_t* x, vector_t* b, vector_t* p) {
+    log_trace("Iniciando resolução do sistema");
+
     if (A == MAT_NULL || b == VEC_NULL || p == VEC_NULL)
         error(ERR_NULL, "lu_solve");
 
@@ -106,5 +113,69 @@ vector_t* lu_solve(matrix_t* A, vector_t* x, vector_t* b, vector_t* p) {
         vector_set(x, i, vector_get(x, i)/matrix_get(A, i, i));
     }
 
+    log_trace("Concluido");
+
     return x;
+}
+
+void lu_parallel(double** A, int n) {
+    // Essa versão não faz pivotação, não é problema
+    // para as redes, mas usar com cuidado
+    log_trace("Iniciando decomposição LU");
+
+    long i, j, k, lines, t_min, t_max;
+    int pid = 0;
+    int procs;
+
+    #pragma omp parallel shared(A, n, procs) private(i, j, k, pid, lines, t_min, t_max)
+    {
+        procs = omp_get_num_threads();
+        pid = omp_get_thread_num();
+
+        lines = n/procs;
+        t_min = pid * lines;
+        t_max = t_min + lines - 1;
+
+        if (pid == procs - 1 && (n - t_max + 1) > 0)
+            t_max = n - 1;
+
+        for (k = 0; k < n; k++) {
+            if ( k >= t_min && k <= t_max) {
+                for (j = k + 1; j < n; j++) {
+                    A[j][k] = A[j][k]/A[k][k];
+                }
+            }
+
+            #pragma omp barrier
+            for (i = (((k + 1) > t_min) ? (k + 1) : t_min); i <= t_max; i++) {
+                for (j = k + 1; j < n; j++) {
+                    A[j][i] = A[j][i] - A[k][i] * A[j][k];
+                }
+            }
+        }
+    }
+
+    log_trace("Concluido");
+}
+
+void lu_solve_parallel(double** A, double* x, double* b, int n) {
+    log_trace("Iniciando resolução do sistema");
+
+    for (int i = 0; i < n; i++) {
+        x[i] = b[i];
+
+        for (int j = 0; j < i; j++) {
+            x[i] -= A[i][j] * x[j];
+        }
+    }
+
+    for (int i = n - 1; i >= 0; i--) {
+        for (int j = i + 1; j < n; j++) {
+            x[i] -= A[i][j] * x[j];
+        }
+
+        x[i] /= A[i][i];
+    }
+
+    log_trace("Concluido");
 }

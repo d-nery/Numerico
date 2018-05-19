@@ -9,6 +9,7 @@
  */
 
 #include <math.h>
+#include <stdlib.h>
 
 #include "newton.h"
 #include "log.h"
@@ -24,7 +25,7 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
         error(ERR_NULL, "newton_solve");
 
     vector_t* p = VEC_NULL;
-    vector_t* c = VEC_NULL;
+    vector_t* c = vector_create(x->size);
 
     vector_t* Fx = VEC_NULL;
     matrix_t* Jx = MAT_NULL;
@@ -43,9 +44,14 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
         Fx = vector_mult_scalar(-1, Fx, Fx);
 
         log_trace("Resolvendo Sistema");
-        p = lu(Jx, p);
-        c = lu_solve(Jx, c, Fx, p);
-        log_trace("Concluido");
+
+        if (Fx->size < 300) {
+            p = lu(Jx, p);
+            c = lu_solve(Jx, c, Fx, p);
+        } else {
+            lu_parallel(Jx->data, Jx->l);
+            lu_solve_parallel(Jx->data, c->data, Fx->data, c->size);
+        }
 
         x = vector_add(x, c, x);
 

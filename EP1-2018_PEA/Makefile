@@ -7,12 +7,12 @@
 # Alunos: Daniel Nery Silva de Oliveira - 9349051
 
 COMPILE  = gcc -Wall -Wextra -std=c11 -fshort-enums
-OPTIMIZE = -O3 #-fopenmp
+OPTIMIZE = -O3 -fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 
 # DEBUG: 0 -> FATAL, 1 -> ERROR, 2-> WARNING, 3 -> INFO, 4-> DEBUG, 5 -> TRACE
-CFLAGS = -DDEBUG=4
+CFLAGS = -DDEBUG=5
 ifdef SYSTEMROOT # Windows, no color prompt
 CFLAGS +=
 else

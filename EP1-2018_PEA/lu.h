@@ -22,6 +22,7 @@
  */
 vector_t* lu(matrix_t* A, vector_t* p);
 
+
 /**
  * lu_solve()
  * Resolve o sistem Ax = b
@@ -31,5 +32,10 @@ vector_t* lu(matrix_t* A, vector_t* p);
  * Retorna o vetor x
  */
 vector_t* lu_solve(matrix_t* A, vector_t* x, vector_t* b, vector_t* p);
+
+
+// Versao paralela para grandes dados
+void lu_parallel(double** A, int n);
+void lu_solve_parallel(double** A, double* x, double* b, int n);
 
 #endif
