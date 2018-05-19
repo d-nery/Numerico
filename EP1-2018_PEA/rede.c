@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <complex.h>
 
 #include "rede.h"
 #include "matrix.h"
@@ -23,6 +24,10 @@
 #ifndef M_PI
 #define M_PI 3.141592653589793
 #endif
+
+#define len(array) ((&array)[1] - array)
+
+static int caso = 0;
 
 // G B
 static matrix_t* Y[2] = { MAT_NULL, MAT_NULL };
@@ -47,6 +52,22 @@ static int n_barras[3] = { 0 };
 // Tensao de referencia para calculo do pu
 // Vem da barra Swing
 static double V_ref;
+
+// Barras e trechos pedidos
+// Para as tabelas
+static const int barras[4][10] = {
+    { 0,   1,    2,    3,    4,   -1,   -1,   -1,   -1,   -1 },
+    { 2,  11,   25,   28,   30,   42,   43,   47,   48,   49 },
+    { 0,   1,   47,  633, 1414, 1429, 1528, 1607, 1609, 1636 },
+    { 3, 990, 1310, 1466, 3947, 4105, 4188, 5820, 5830, 5840 },
+};
+
+static const int trechos[4][10][2] = {
+    {{ 0,    1 }, {   0,   4 }, {   1,    2 }, {    2,    3 }, {    2,    4 }, {    3,    4 }, {   -1,  -1 }, {   -1,   -1 }, {   -1,   -1 }, {   -1,   -1 }},
+    {{ 3,    4 }, {   6,   5 }, {  12,   28 }, {   13,    9 }, {   17,    1 }, {   18,    2 }, {   19,  20 }, {   24,   52 }, {   60,   62 }, {   75,    2 }},
+    {{ 0, 1185 }, {   1,   2 }, {   1,   92 }, {   47,    6 }, {   47,   31 }, {  633,  632 }, {  633, 634 }, { 1414, 1415 }, { 1607,  286 }, { 1621, 1622 }},
+    {{ 0, 1185 }, { 710, 543 }, { 776, 1748 }, { 1543, 1542 }, { 1600, 1387 }, { 1631, 1630 }, { 1748, 776 }, { 2867, 2868 }, { 2878, 2877 }, { 3640, 3947 }}
+};
 
 vector_t* prepara_rede(const int n) {
     FILE* fp;
@@ -78,6 +99,8 @@ vector_t* prepara_rede(const int n) {
         default:
             error(ERR_OOB, "prepara_rede");
     }
+
+    caso = n - 1;
 
     if ((fp = fopen(dados_barras, "r")) == NULL)
         error(ERR_OPEN_FILE, "prepara_rede");
@@ -222,11 +245,14 @@ matrix_t* J_rede(vector_t* x) {
     if (x == VEC_NULL)
         error(ERR_NULL, "J_rede");
 
+    // Numero de barras PQ e PV
+    int n = n_barras[0] + n_barras[1];
+
     // Atualiza Vs e thetas
-    for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
+    for (int i = 0; i < n; i++) {
         vector_set(thetas, i, vector_get(x, i));
         if (i < n_barras[0])
-            vector_set(Vs, i, vector_get(x, n_barras[0] + n_barras[1] + i));
+            vector_set(Vs, i, vector_get(x, n + i));
     }
 
     matrix_t* J = matrix_create(2*n_barras[0] + n_barras[1], 2*n_barras[0] + n_barras[1]);
@@ -234,10 +260,11 @@ matrix_t* J_rede(vector_t* x) {
     double sum = 0;
     double theta_kj = 0;
 
+
     // dfps
-    for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
+    for (int i = 0; i < n; i++) {
         // /dThetas
-        for (int j = 0; j < n_barras[0] + n_barras[1]; j++) {
+        for (int j = 0; j < n; j++) {
             // Propria barra
             if (i == j) {
                 sum = 0;
@@ -261,9 +288,9 @@ matrix_t* J_rede(vector_t* x) {
         }
 
         // /dVs
-        for (int j = n_barras[0] + n_barras[1]; j < J->c; j++) {
+        for (int j = n; j < J->c; j++) {
             // Propria barra
-            if (j - (n_barras[0] + n_barras[1]) == i) {
+            if (j - n == i) {
                 sum = 0;
                 for (int k = 0; k < Y[0]->l; k++) {
                     if (k == i) continue;
@@ -276,10 +303,10 @@ matrix_t* J_rede(vector_t* x) {
 
                 matrix_set(J, i, j, sum + 2 * vector_get(Vs, i) * matrix_get(Y[0], i, i));
             } else {
-                theta_kj = vector_get(thetas, j - (n_barras[0] + n_barras[1])) - vector_get(thetas, i);
+                theta_kj = vector_get(thetas, j - n) - vector_get(thetas, i);
                 matrix_set(J, i, j, vector_get(Vs, i) *
-                    (matrix_get(Y[0], i, j - (n_barras[0] + n_barras[1])) * cos(theta_kj) -
-                     matrix_get(Y[1], i, j - (n_barras[0] + n_barras[1])) * sin(theta_kj)));
+                    (matrix_get(Y[0], i, j - n) * cos(theta_kj) -
+                     matrix_get(Y[1], i, j - n) * sin(theta_kj)));
             }
         }
     }
@@ -287,7 +314,7 @@ matrix_t* J_rede(vector_t* x) {
     // dfqs
     for (int i = 0; i < n_barras[0]; i++) {
         // /dThetas
-        for (int j = 0; j < n_barras[0] + n_barras[1]; j++) {
+        for (int j = 0; j < n; j++) {
             // Propria barra
             if (i == j) {
                 sum = 0;
@@ -300,10 +327,10 @@ matrix_t* J_rede(vector_t* x) {
                         matrix_get(Y[1], i, k) * sin(theta_kj));
                 }
 
-                matrix_set(J, i + n_barras[0] + n_barras[1], j, sum * vector_get(Vs, i));
+                matrix_set(J, i + n, j, sum * vector_get(Vs, i));
             } else {
                 theta_kj = vector_get(thetas, j) - vector_get(thetas, i);
-                matrix_set(J, i + n_barras[0] + n_barras[1], j,
+                matrix_set(J, i + n, j,
                     -vector_get(Vs, i) * vector_get(Vs, j) *
                     (matrix_get(Y[0], i, j) * cos(theta_kj) -
                      matrix_get(Y[1], i, j) * sin(theta_kj)));
@@ -311,9 +338,9 @@ matrix_t* J_rede(vector_t* x) {
         }
 
         // /dVs
-        for (int j = n_barras[0] + n_barras[1]; j < J->c; j++) {
+        for (int j = n; j < J->c; j++) {
             // Propria barra
-            if (j - (n_barras[0] + n_barras[1]) == i) {
+            if (j - n == i) {
                 sum = 0;
                 for (int k = 0; k < Y[0]->l; k++) {
                     if (k == i) continue;
@@ -324,12 +351,12 @@ matrix_t* J_rede(vector_t* x) {
                          matrix_get(Y[1], i, k) * cos(theta_kj));
                 }
 
-                matrix_set(J, i + n_barras[0] + n_barras[1], j, -sum - 2 * vector_get(Vs, i) * matrix_get(Y[1], i, i));
+                matrix_set(J, i + n, j, -sum - 2 * vector_get(Vs, i) * matrix_get(Y[1], i, i));
             } else {
-                theta_kj = vector_get(thetas, j - (n_barras[0] + n_barras[1])) - vector_get(thetas, i);
-                matrix_set(J, i + n_barras[0] + n_barras[1], j, -vector_get(Vs, i) *
-                    (matrix_get(Y[0], i, j - (n_barras[0] + n_barras[1])) * sin(theta_kj) +
-                     matrix_get(Y[1], i, j - (n_barras[0] + n_barras[1])) * cos(theta_kj)));
+                theta_kj = vector_get(thetas, j - (n)) - vector_get(thetas, i);
+                matrix_set(J, i + n, j, -vector_get(Vs, i) *
+                    (matrix_get(Y[0], i, j - (n)) * sin(theta_kj) +
+                     matrix_get(Y[1], i, j - (n)) * cos(theta_kj)));
             }
         }
     }
@@ -350,22 +377,85 @@ void finaliza_rede(vector_t* x) {
             vector_set(Vs, i, vector_get(x, n_barras[0] + n_barras[1] + i));
     }
 
-    // Radiano -> Grau
-    for (int i = 0; i < thetas->size; i++)
-        vector_set(thetas, i, vector_get(thetas, i)*180.0/M_PI);
-
     // Imprime tabela 1
-    printf(" ____________________________________________________ \n");
-    printf("|       |       Tensão Complexa        |             |\n");
-    printf("| Barra |  Modulo (pu)  |  Angulo (g)  |   |V| (V)   |\n");
+    printf(" ___________________________________________________________ \n");
+    printf("|       |       Tensão Complexa        |  Modulo da Tensão  |\n");
+    printf("| Barra |  Modulo (pu)  |  Angulo (g)  |    Complexa  (V)   |\n");
 
     int ind;
-    for (int i = 0; i < thetas->size; i++) {
-        ind = vector_get(map, i);
-        printf("| %5d |    %8.6f   |   %s%6.4f    |  %10.3f |\n", i, vector_get(Vs, ind)/V_ref, vector_get(thetas, ind) < 0 ? "" : " ", vector_get(thetas, ind), vector_get(Vs, ind));
+    double graus = 0;
+    for (int i = 0; i < len(barras[caso]); i++) {
+        if (barras[caso][i] == -1)
+            break;
+        ind = vector_get(map, barras[caso][i]);
+        graus = vector_get(thetas, ind)*180.0/M_PI;
+        printf("| %5d |  %11.6f  |  %+10.4f  |  %16.3f  |\n", barras[caso][i], vector_get(Vs, ind)/V_ref, graus, vector_get(Vs, ind));
     }
     printf(" ");
-    for (int i = 0; i < 52; i++)
+
+    // Borda inferior
+    for (int i = 0; i < 59; i++)
+        printf("\u203E");
+    printf(" \n");
+
+    // Calculo das potencias nos trechos pedidos para a tabela 2
+
+    // Imprime tabela 2
+    printf(" ________________________________________________________________ \n");
+    printf("|       Trecho      |                       |                    |\n");
+    printf("| Inicial |  Final  |  Potencia Ativa (kW)  |  Perda Ativa (kW)  |\n");
+
+    int ind1, ind2;
+    double soma_perda = 0;
+    for (int i = 0; i < len(trechos[caso]); i++) {
+        if (trechos[caso][i][0] == -1)
+            break;
+
+        ind1 = vector_get(map, trechos[caso][i][0]);
+        ind2 = vector_get(map, trechos[caso][i][1]);
+
+        double complex Vi = vector_get(Vs, ind1)*cos(vector_get(thetas, ind1)) + vector_get(Vs, ind1)*sin(vector_get(thetas, ind1))*I;
+        double complex Vj = vector_get(Vs, ind2)*cos(vector_get(thetas, ind2)) + vector_get(Vs, ind2)*sin(vector_get(thetas, ind2))*I;
+
+        double complex Yij = matrix_get(Y[0], ind1, ind2) + matrix_get(Y[1], ind1, ind2)*I;
+        double complex Iij = (Vi - Vj) * (-Yij);
+        double complex Sij = 0.001 * Vi * conj(Iij) * 3.0;
+        double perda = pow(cabs(Vi - Vj), 2.0) * (-creal(Yij)) * 3.0 / 1000.0; // k
+
+        soma_perda += perda;
+
+        printf("| %7d |  %5d  |  %+19.3f  |  %+16.3f  |\n", trechos[caso][i][0], trechos[caso][i][1], creal(Sij), perda);
+    }
+    printf(" ");
+
+    // Borda inferior
+    for (int i = 0; i < 64; i++)
+        printf("\u203E");
+    printf(" \n");
+
+    // Calculo Geral
+    double P = 0.0;
+    double soma_ps = 0.0;
+    double theta_ji = 0.0;
+    for (int i = 0; i < map->size; i++) {
+        P = 0.0;
+
+        for (int j = 0; j < map->size; j++) {
+            theta_ji = vector_get(thetas, j) - vector_get(thetas, i);
+            P += vector_get(Vs, i) * vector_get(Vs, j) * (matrix_get(Y[0], i, j)*cos(theta_ji) - matrix_get(Y[1], i, j)*sin(theta_ji));
+        }
+
+        soma_ps += 3 * P / 1000.0;
+    }
+
+    // Imprime tabela 3
+    printf(" ____________________________________________________________ \n");
+    printf("|                                           |    Valor (kW)  |\n");
+    printf("| Potência ativa total gerada               |  %+12.3f  |\n", soma_ps);
+    printf("| Potência ativa total de carga (absorvida) |  %+12.3f  |\n", soma_ps - soma_perda);
+    printf("| Perda ativa total                         |  %+12.3f  |\n ", soma_perda);
+    // Borda inferior
+    for (int i = 0; i < 60; i++)
         printf("\u203E");
     printf(" \n");
 }
