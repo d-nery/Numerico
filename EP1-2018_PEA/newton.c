@@ -33,13 +33,19 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
 
     for (;;) {
         log_trace("iteração %d", it+1);
-        Jx = J(x);
+        log_trace("Calculando F");
         Fx = F(x);
+        log_trace("Concluido");
+        log_trace("Calculando J");
+        Jx = J(x);
+        log_trace("Concluido");
 
         Fx = vector_mult_scalar(-1, Fx, Fx);
 
+        log_trace("Resolvendo Sistema");
         p = lu(Jx, p);
         c = lu_solve(Jx, c, Fx, p);
+        log_trace("Concluido");
 
         x = vector_add(x, c, x);
 
@@ -48,11 +54,12 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
         vector_free(Fx);
         matrix_free(Jx);
 
+        log_trace("Checando convergencia");
         if (vector_norm(c) < EPS)
             break;
     }
 
-    log_info("Newton terminado: %d iteracoes", it);
+    log_debug("Newton terminado: %d iteracoes", it);
 
     return x;
 }

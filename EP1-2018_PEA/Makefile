@@ -11,7 +11,13 @@ OPTIMIZE = -O3 #-fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 
-CFLAGS = -DDEBUG=5
+# DEBUG: 0 -> FATAL, 1 -> ERROR, 2-> WARNING, 3 -> INFO, 4-> DEBUG, 5 -> TRACE
+CFLAGS = -DDEBUG=4
+ifdef SYSTEMROOT # Windows, no color prompt
+CFLAGS +=
+else
+CFLAGS += -DLOG_USE_COLOR
+endif
 
 all: main
 

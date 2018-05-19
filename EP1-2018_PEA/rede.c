@@ -370,13 +370,18 @@ void finaliza_rede(vector_t* x) {
     if (x == VEC_NULL)
         error(ERR_NULL, "finaliza_rede");
 
+    log_debug("Finalizando Rede");
+
+    log_debug("Atualizando Vs e Thetas");
     // Atualiza Vs e thetas
     for (int i = 0; i < n_barras[0] + n_barras[1]; i++) {
         vector_set(thetas, i, vector_get(x, i));
         if (i < n_barras[0])
             vector_set(Vs, i, vector_get(x, n_barras[0] + n_barras[1] + i));
     }
+    log_debug("Concluido");
 
+    log_debug("Calculando dados da tabela 1");
     // Imprime tabela 1
     printf(" ___________________________________________________________ \n");
     printf("|       |       Tensão Complexa        |  Modulo da Tensão  |\n");
@@ -397,8 +402,10 @@ void finaliza_rede(vector_t* x) {
     for (int i = 0; i < 59; i++)
         printf("\u203E");
     printf(" \n");
+    log_debug("Concluido");
 
     // Calculo das potencias nos trechos pedidos para a tabela 2
+    log_debug("Calculando dados da tabela 2");
 
     // Imprime tabela 2
     printf(" ________________________________________________________________ \n");
@@ -406,7 +413,6 @@ void finaliza_rede(vector_t* x) {
     printf("| Inicial |  Final  |  Potencia Ativa (kW)  |  Perda Ativa (kW)  |\n");
 
     int ind1, ind2;
-    double soma_perda = 0;
     for (int i = 0; i < len(trechos[caso]); i++) {
         if (trechos[caso][i][0] == -1)
             break;
@@ -422,8 +428,6 @@ void finaliza_rede(vector_t* x) {
         double complex Sij = 0.001 * Vi * conj(Iij) * 3.0;
         double perda = pow(cabs(Vi - Vj), 2.0) * (-creal(Yij)) * 3.0 / 1000.0; // k
 
-        soma_perda += perda;
-
         printf("| %7d |  %5d  |  %+19.3f  |  %+16.3f  |\n", trechos[caso][i][0], trechos[caso][i][1], creal(Sij), perda);
     }
     printf(" ");
@@ -432,10 +436,13 @@ void finaliza_rede(vector_t* x) {
     for (int i = 0; i < 64; i++)
         printf("\u203E");
     printf(" \n");
+    log_debug("Concluido");
 
+    log_debug("Calculando dados da tabela 3");
     // Calculo Geral
     double P = 0.0;
     double soma_ps = 0.0;
+    double soma_perda = 0;
     double theta_ji = 0.0;
     for (int i = 0; i < map->size; i++) {
         P = 0.0;
@@ -443,6 +450,13 @@ void finaliza_rede(vector_t* x) {
         for (int j = 0; j < map->size; j++) {
             theta_ji = vector_get(thetas, j) - vector_get(thetas, i);
             P += vector_get(Vs, i) * vector_get(Vs, j) * (matrix_get(Y[0], i, j)*cos(theta_ji) - matrix_get(Y[1], i, j)*sin(theta_ji));
+
+            if (j > i) {
+                double complex Vi = vector_get(Vs, i)*cos(vector_get(thetas, i)) + vector_get(Vs, i)*sin(vector_get(thetas, i))*I;
+                double complex Vj = vector_get(Vs, j)*cos(vector_get(thetas, j)) + vector_get(Vs, j)*sin(vector_get(thetas, j))*I;
+
+                soma_perda += 3 * pow(cabs(Vi - Vj), 2.0) * (-matrix_get(Y[0], i, j)) / 1000.0;
+            }
         }
 
         soma_ps += 3 * P / 1000.0;
@@ -458,4 +472,5 @@ void finaliza_rede(vector_t* x) {
     for (int i = 0; i < 60; i++)
         printf("\u203E");
     printf(" \n");
+    log_debug("Concluido");
 }

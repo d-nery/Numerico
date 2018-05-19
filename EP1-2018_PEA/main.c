@@ -103,8 +103,8 @@ int main(int argc, char* argv[]) {
 
             x = prepara_rede(n);
             newton(F_rede, J_rede, x);
-            log_info("Terminado!");
             finaliza_rede(x);
+            log_info("Terminado!");
 
             vector_free(x);
 
