@@ -68,8 +68,12 @@ vector_t* lu(matrix_t* A, vector_t* p) {
             matrix_set(A, k, j, matrix_get(A, k, j) - sum);
             matrix_set(A, j, k, matrix_get(A, j, k)/matrix_get(A, k, k));
         }
+
+        if (k % 100 == 0)
+            log_trace("LU k = %d/%d (%d%%)", k, n, (int)((100.0 * k) / n));
     }
 
+    log_trace("LU k = %d/%d (%d%%)", n, n, 100);
     log_trace("Concluido");
 
     return p;
@@ -123,40 +127,33 @@ void lu_parallel(double** A, int n) {
     // para as redes, mas usar com cuidado
     log_trace("Iniciando decomposição LU");
 
-    long i, j, k, lines, t_min, t_max;
-    int pid = 0;
-    int procs;
+    int i, k;
 
-    #pragma omp parallel shared(A, n, procs) private(i, j, k, pid, lines, t_min, t_max)
-    {
-        procs = omp_get_num_threads();
-        pid = omp_get_thread_num();
+    for (k = 0; k < n - 1; k++) {
+        #pragma omp parallel for
+        for (i = k + 1; i < n; i++) {
+            A[i][k] /= A[k][k];
+            if (isnan(A[i][k]) || isinf(A[i][k]))
+                log_warn("NaN or Inf found [%d, %d]", i, k);
+        }
 
-        lines = n/procs;
-        t_min = pid * lines;
-        t_max = t_min + lines - 1;
-
-        if (pid == procs - 1 && (n - t_max + 1) > 0)
-            t_max = n - 1;
-
-        for (k = 0; k < n; k++) {
-            if ( k >= t_min && k <= t_max) {
-                for (j = k + 1; j < n; j++) {
-                    A[j][k] = A[j][k]/A[k][k];
-                }
-            }
-
-            #pragma omp barrier
-            for (i = (((k + 1) > t_min) ? (k + 1) : t_min); i <= t_max; i++) {
-                for (j = k + 1; j < n; j++) {
-                    A[j][i] = A[j][i] - A[k][i] * A[j][k];
-                }
+        #pragma omp parallel for shared(A, n, k) private(i) schedule(static, 100) num_threads(8)
+        for (i = k + 1; i < n; i++) {
+            int j;
+            for (j = k + 1; j < n; j++) {
+                A[j][i] -= A[k][i] * A[j][k];
             }
         }
+
+        if (k % 100 == 0)
+            log_trace("LU k = %d/%d (%d%%)", k, n, (int)((100.0 * k) / n));
     }
+
+    log_trace("LU k = %d/%d (%d%%)", k, n, (int)((100.0 * k+1) / n));
 
     log_trace("Concluido");
 }
+
 
 void lu_solve_parallel(double** A, double* x, double* b, int n) {
     log_trace("Iniciando resolução do sistema");

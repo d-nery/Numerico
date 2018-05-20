@@ -41,6 +41,9 @@ static vector_t* Vs = VEC_NULL;
 // [PespPQ ... PespPV ... PespSwing]
 static vector_t* Pesp  = VEC_NULL;
 
+// Tensao nominal
+static vector_t* V_nom = VEC_NULL;
+
 // Vetor que mapeia posições originais das barras para
 // a ordem [PQ PV Swing]
 static vector_t* map = VEC_NULL;
@@ -48,10 +51,6 @@ static vector_t* map = VEC_NULL;
 // Numero total de barras de cada tipo
 // 0 -> PQ   1 -> PV    2 -> SW
 static int n_barras[3] = { 0 };
-
-// Tensao de referencia para calculo do pu
-// Vem da barra Swing
-static double V_ref;
 
 // Barras e trechos pedidos
 // Para as tabelas
@@ -112,6 +111,7 @@ vector_t* prepara_rede(const int n) {
 
     thetas = vector_create(total_barras);
     Vs     = vector_create(total_barras);
+    V_nom  = vector_create(total_barras);
     Pesp   = vector_create(total_barras);
     map    = vector_create(total_barras);
 
@@ -145,19 +145,21 @@ vector_t* prepara_rede(const int n) {
         switch (tipo) {
             case 0: // PQ
                 vector_set(map, i, pos_pq);
+                vector_set(V_nom, pos_pq, c3); // Vnominal
                 vector_set(Vs, pos_pq++, c3); // V
                 vector_set(x0,  pos_x++, c3); // V
                 break;
 
             case 1: // PV
                 vector_set(map, i, pos_pv);
+                vector_set(V_nom, pos_pv, c3); // Vnominal
                 vector_set(Vs, pos_pv, c5); // V
                 vector_set(Pesp, pos_pv++, c4); // Pesp
                 break;
 
             case 2: // Swing
                 vector_set(map, i, pos_sw);
-                V_ref = c4;
+                vector_set(V_nom, pos_sw, c3); // Vnominal
                 vector_set(Vs, pos_sw, c4); // V
                 vector_set(thetas, pos_sw++, c5*M_PI/180.0); // thetas em rad
                 break;
@@ -394,7 +396,7 @@ void finaliza_rede(vector_t* x) {
             break;
         ind = vector_get(map, barras[caso][i]);
         graus = vector_get(thetas, ind)*180.0/M_PI;
-        printf("| %5d |  %11.6f  |  %+10.4f  |  %16.3f  |\n", barras[caso][i], vector_get(Vs, ind)/V_ref, graus, vector_get(Vs, ind));
+        printf("| %5d |  %11.6f  |  %+10.4f  |  %16.3f  |\n", barras[caso][i], vector_get(Vs, ind)/vector_get(V_nom, ind), graus, vector_get(Vs, ind));
     }
     printf(" ");
 

@@ -27,8 +27,20 @@
 
 void usage(char* argv[]);
 
+static int lck = 0;
+
+void logfn(void* u, int l) {
+    if (l == 1) {
+        while (lck == 1);
+        lck = 0;
+    } else {
+        lck = 0;
+    }
+}
+
 int main(int argc, char* argv[]) {
     log_set_level(LOG_FATAL - DEBUG);
+    log_set_lock(logfn);
 
     if (argc < 2) {
         usage(argv);

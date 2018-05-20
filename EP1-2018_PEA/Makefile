@@ -7,7 +7,7 @@
 # Alunos: Daniel Nery Silva de Oliveira - 9349051
 
 COMPILE  = gcc -Wall -Wextra -std=c11 -fshort-enums
-OPTIMIZE = -O3 -fopenmp
+OPTIMIZE = -O2 -fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 

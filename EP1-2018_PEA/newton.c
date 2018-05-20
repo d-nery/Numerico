@@ -10,6 +10,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "newton.h"
 #include "log.h"
@@ -30,10 +31,13 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
     vector_t* Fx = VEC_NULL;
     matrix_t* Jx = MAT_NULL;
 
+    clock_t beg;
+
     int it = 0;
 
-    for (;;) {
-        log_trace("iteração %d", it+1);
+    print_vector(x);
+    for (; it < 100;) {
+        log_trace("Iteração %d", it + 1);
         log_trace("Calculando F");
         Fx = F(x);
         log_trace("Concluido");
@@ -54,6 +58,7 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
         }
 
         x = vector_add(x, c, x);
+        print_vector(x);
 
         it++;
 
@@ -61,11 +66,15 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
         matrix_free(Jx);
 
         log_trace("Checando convergencia");
-        if (vector_norm(c) < EPS)
+        if (vector_norm(c) < EPS) {
+            log_trace("Convergiu");
             break;
+        }
     }
 
     log_debug("Newton terminado: %d iteracoes", it);
+    if (it == 100)
+        log_warn("Terminado no maximo de iterações, talvez não tenha convergido");
 
     return x;
 }
