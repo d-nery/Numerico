@@ -401,8 +401,8 @@ void finaliza_rede(vector_t* x) {
     printf(" ");
 
     // Borda inferior
-    for (int i = 0; i < 59; i++)
-        printf("\u203E");
+    // for (int i = 0; i < 59; i++)
+    //     printf("\u203E");
     printf(" \n");
     log_debug("Concluido");
 
@@ -435,8 +435,8 @@ void finaliza_rede(vector_t* x) {
     printf(" ");
 
     // Borda inferior
-    for (int i = 0; i < 64; i++)
-        printf("\u203E");
+    // for (int i = 0; i < 64; i++)
+    //     printf("\u203E");
     printf(" \n");
     log_debug("Concluido");
 
@@ -471,8 +471,8 @@ void finaliza_rede(vector_t* x) {
     printf("| Potência ativa total de carga (absorvida) |  %+12.3f  |\n", soma_ps - soma_perda);
     printf("| Perda ativa total                         |  %+12.3f  |\n ", soma_perda);
     // Borda inferior
-    for (int i = 0; i < 60; i++)
-        printf("\u203E");
+    // for (int i = 0; i < 60; i++)
+    //     printf("\u203E");
     printf(" \n");
     log_debug("Concluido");
 }

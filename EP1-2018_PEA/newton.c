@@ -48,13 +48,13 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
 
         log_trace("Resolvendo Sistema");
 
-        if (Fx->size < 300) {
-            p = lu(Jx, p);
-            c = lu_solve(Jx, c, Fx, p);
-        } else {
+        // if (Fx->size < 300) {
+        //     p = lu(Jx, p);
+        //     c = lu_solve(Jx, c, Fx, p);
+        // } else {
             lu_parallel(Jx->data, Jx->l);
             lu_solve_parallel(Jx->data, c->data, Fx->data, c->size);
-        }
+        // }
 
         x = vector_add(x, c, x);
 
