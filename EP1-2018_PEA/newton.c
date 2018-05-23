@@ -35,7 +35,6 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
 
     int it = 0;
 
-    print_vector(x);
     for (; it < 100;) {
         log_trace("Iteração %d", it + 1);
         log_trace("Calculando F");
@@ -58,7 +57,6 @@ vector_t* newton(vector_t* F(vector_t*), matrix_t* J(vector_t*), vector_t* x) {
         }
 
         x = vector_add(x, c, x);
-        print_vector(x);
 
         it++;
 

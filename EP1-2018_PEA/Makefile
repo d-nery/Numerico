@@ -7,7 +7,7 @@
 # Alunos: Daniel Nery Silva de Oliveira - 9349051
 
 COMPILE  = gcc -Wall -Wextra -std=c11 -fshort-enums
-OPTIMIZE = -O2 -fopenmp
+OPTIMIZE = -O2 -fopenacc # -fopenmp
 LD_FLAGS = -lm
 OBJECTS  = $(patsubst %.c,%.o,$(wildcard *.c))
 
@@ -22,11 +22,11 @@ endif
 all: main
 
 %.o: %.c
-	$(COMPILE) -c $< -o $@ $(OPTIMIZE) $(CFLAGS)
+	$(COMPILE) -c $< -o $@ $(OPTIMIZE) $(CFLAGS) -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\include"
 	@echo
 
 main: $(OBJECTS)
-	$(COMPILE) -o main $(OBJECTS) $(LD_FLAGS) $(OPTIMIZE)
+	$(COMPILE) -o main $(OBJECTS) $(LD_FLAGS) $(OPTIMIZE) -L"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\lib\x64" "-Wl,-rpath,C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\lib\x64"
 	@echo
 
 clean:

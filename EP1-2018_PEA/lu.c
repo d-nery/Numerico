@@ -10,7 +10,9 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <omp.h>
+// #include <omp.h>
+#include <openacc.h>
+#include <cuda_runtime_api.h>
 
 #include "log.h"
 #include "lu.h"
@@ -126,18 +128,22 @@ void lu_parallel(double** A, int n) {
     // Essa versão não faz pivotação, não é problema
     // para as redes, mas usar com cuidado
     log_trace("Iniciando decomposição LU");
+    acc_init(acc_device_nvidia);
 
     int i, k;
 
+    // #pragma acc parallel loop //shared(A, n, k) private(i)
     for (k = 0; k < n - 1; k++) {
-        #pragma omp parallel for
+        // #pragma omp parallel for
         for (i = k + 1; i < n; i++) {
             A[i][k] /= A[k][k];
             if (isnan(A[i][k]) || isinf(A[i][k]))
                 log_warn("NaN or Inf found [%d, %d]", i, k);
         }
 
-        #pragma omp parallel for shared(A, n, k) private(i) schedule(static, 100) num_threads(8)
+        // #pragma acc loop //shared(A, n, k) private(i)
+        // #pragma omp parallel for shared(A, n, k) //private(i) //schedule(static, 100) num_threads(8)
+        #pragma acc parallel loop
         for (i = k + 1; i < n; i++) {
             int j;
             for (j = k + 1; j < n; j++) {
