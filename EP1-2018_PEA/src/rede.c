@@ -107,6 +107,7 @@ vector_t* prepara_rede(const int n) {
     int total_barras;
     if (fscanf(fp, "%d", &total_barras) != 1)
         error(ERR_READ_FILE, "prepara_rede");
+    // Salva posicao para voltar depois
     int pos_file = ftell(fp);
 
     thetas = vector_create(total_barras);
@@ -127,6 +128,7 @@ vector_t* prepara_rede(const int n) {
         vector_set(map, i, ind);
     }
 
+    // Volta para começo do arquivo (pos-numero de barras)
     fseek(fp, pos_file, SEEK_SET);
 
     // [thetaPQ thetaPV VPQ]
@@ -401,8 +403,8 @@ void finaliza_rede(vector_t* x) {
     printf(" ");
 
     // Borda inferior
-    // for (int i = 0; i < 59; i++)
-    //     printf("\u203E");
+    for (int i = 0; i < 59; i++)
+        printf("\u203E");
     printf(" \n");
     log_debug("Concluido");
 
@@ -435,8 +437,8 @@ void finaliza_rede(vector_t* x) {
     printf(" ");
 
     // Borda inferior
-    // for (int i = 0; i < 64; i++)
-    //     printf("\u203E");
+    for (int i = 0; i < 64; i++)
+        printf("\u203E");
     printf(" \n");
     log_debug("Concluido");
 
@@ -471,8 +473,8 @@ void finaliza_rede(vector_t* x) {
     printf("| Potência ativa total de carga (absorvida) |  %+12.3f  |\n", soma_ps - soma_perda);
     printf("| Perda ativa total                         |  %+12.3f  |\n ", soma_perda);
     // Borda inferior
-    // for (int i = 0; i < 60; i++)
-    //     printf("\u203E");
+    for (int i = 0; i < 60; i++)
+        printf("\u203E");
     printf(" \n");
     log_debug("Concluido");
 }

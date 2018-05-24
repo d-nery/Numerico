@@ -35,6 +35,6 @@
 .vscode
 *.exe.*
 
-*.txt
+# *.txt
 
-main
+build/
