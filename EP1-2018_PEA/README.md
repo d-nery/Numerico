@@ -14,31 +14,31 @@ O objetivo desse exercício programa foi utilizar o método de Newton para achar
 ## Arquivos
 
 O código está dividido em arquivos `.c` e `.h`, nas pastas `src` e `inc` respectivamente. Aqui um breve resumo do que é encontrado em cada arquivo, mais informações podem ser encontradas nos .h:
-* `log.c`
+* `log.c`:
 
   Logging para o terminal, retirado de https://github.com/rxi/log.c, usado para printar boa parte do código
 
-* `erro.c`
+* `erro.c`:
 
   Função de erro para ser chamada pelos outros arquivos, envolve o logger acima, adicionando mais informações.
 
-* `lu.c`
+* `lu.c`:
 
   Arquivo que contém a implementação da decomposição LU, como pedido no enunciado e a resolução de sistem Ax = b, com A sendo a matriz decomposta, também inclui uma versão paralela da decomposição, utilizando a biblioteca OpenMP para casos em que a matriz é muito grande.
 
-* `matrix.c` e `vector.c`
+* `matrix.c` e `vector.c`:
 
   Funções auxiliares para criação e manipulação de vetores e matrizes
 
-* `newton.c`
+* `newton.c`:
 
   Função que acha as raizes de um sistema de equações pelo método de Newton, utilizando sucessivas decomposições LU e soluções de sistemas lineares.
 
-* `rede.c`
+* `rede.c`:
 
   Funções para leitura, cálculo de F e J e finalização das redes propostas.
 
-* `testes.c`
+* `testes.c`:
 
     Funções para o cálculo de F e J dos testes iniciais propostos
 
@@ -61,6 +61,7 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |     3 |     0.911989  |     -8.9880  |        121103.490  |
 |     4 |     0.945681  |     -5.2480  |        125577.508  |
 
+
 | Barra Inicial | Barra Final  |  Potencia Ativa (kW)  |  Perda Ativa (kW)  |
 | ------- | ------- | --------------------- | ------------------ |
 |       0 |      1  |           +57547.523  |         +1627.615  |
@@ -70,11 +71,13 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |       2 |      4  |           +27311.974  |          +597.499  |
 |       3 |      4  |           -23708.505  |          +448.990  |
 
+
 |                                           |    Valor (kW)  |
 | ----------------------------------------  | ---------------|
 | Potência ativa total gerada               |   +378010.127  |
 | Potência ativa total de carga (absorvida) |   +370841.661  |
 | Perda ativa total                         |     +7168.466  |
+
 
 ### Rede 2
 | Barra |  Modulo (pu)  |  Angulo (g)  |  Tensão Complexa  (V) |
@@ -90,6 +93,7 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |    48 |     0.991666  |     -0.7766  |          7901.034  |
 |    49 |     0.991480  |     -0.7784  |          7899.554  |
 
+
 | Barra Inicial | Barra Final  |  Potencia Ativa (kW)  |  Perda Ativa (kW)  |
 | ------- | ------- | --------------------- | ------------------ |
 |       3 |      4  |            +1106.332  |            +0.253  |
@@ -103,11 +107,13 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |      60 |     62  |          +116922.663  |       +114851.424  |
 |      75 |      2  |          +116913.444  |       +114849.410  |
 
+
 |                                           |    Valor (kW)  |
 | ----------------------------------------  | ---------------|
 | Potência ativa total gerada               |     +6680.793  |
 | Potência ativa total de carga (absorvida) |  -2865946.746  |
 | Perda ativa total                         |  +2872627.540  |
+
 
 ### Rede 3
 | Barra |  Modulo (pu)  |  Angulo (g)  |  Tensão Complexa  (V) |
@@ -123,6 +129,7 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |  1609 |     0.999228  |     -0.0489  |          7961.285  |
 |  1636 |     0.997308  |     -0.1625  |          7945.985  |
 
+
 | Barra Inicial | Barra Final  |  Potencia Ativa (kW)  |  Perda Ativa (kW)  |
 | ------- | ------- | --------------------- | ------------------ |
 |       0 |   1185  |            +1853.159  |            +0.156  |
@@ -136,11 +143,13 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |    1607 |    286  |               +0.000  |            +0.000  |
 |    1621 |   1622  |            +1850.432  |            +0.148  |
 
+
 |                                           |    Valor (kW)  |
 | ----------------------------------------  | ---------------|
 | Potência ativa total gerada               |     +1853.159  |
 | Potência ativa total de carga (absorvida) |     +1781.390  |
 | Perda ativa total                         |       +71.769  |
+
 
 ### Rede 4
 | Barra |  Modulo (pu)  |  Angulo (g)  |  Tensão Complexa  (V) |
@@ -156,6 +165,7 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |  5830 |     0.947113  |     -1.4556  |           240.599  |
 |  5840 |     0.947269  |     -1.4574  |           240.638  |
 
+
 | Barra Inicial | Barra Final  |  Potencia Ativa (kW)  |  Perda Ativa (kW)  |
 | ------- | ------- | --------------------- | ------------------ |
 |       0 |   1185  |            +1810.442  |            +0.149  |
@@ -168,6 +178,7 @@ Os cálculos referentes às redes propostas foram realizados com sucesso, abaixo
 |    2867 |   2868  |               +5.605  |            +0.010  |
 |    2878 |   2877  |               -4.107  |            +0.014  |
 |    3640 |   3947  |               +6.548  |            +0.001  |
+
 
 |                                           |    Valor (kW)  |
 | ----------------------------------------  | ---------------|
